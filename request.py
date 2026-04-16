@@ -34,4 +34,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     response = receive_json(client)
 
 
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+    listener.bind(('', 8888))
+    listener.listen(1)
+    print("En attente du ping...")
     
+    while True: # Boucle pour répondre à chaque ping entre les matchs
+        server_sock, addr = listener.accept()
+        with server_sock:
+            req = receive_json(server_sock)
+            if req and req.get("request") == "ping":
+                send_json(server_sock, {"response": "pong"})
+                print("Pong envoyé !")
