@@ -33,10 +33,10 @@ def recevoir(client, taille_envoyé, taille_attendu):
     
         #recevoir 
         data= client.recv(taille_response)
-        # 3. On décode et on transforme en dictionnaire
+        #On décode et on transforme en dictionnaire
         response = json.loads(data.decode("utf-8"))
         
-        # 4. Écriture dans le fichier
+        # Écriture dans le fichier
         with open("eval.json", "w") as f:
             json.dump(response, f, indent=4)
    
@@ -51,8 +51,6 @@ def recevoir(client, taille_envoyé, taille_attendu):
 serverAddress= ("127.0.0.1", 3000)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress))  
-    #execution
-
     taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
     
     recevoir(client, taille_envoyé, taille_attendu)
