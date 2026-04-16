@@ -49,32 +49,17 @@ def recevoir(client, taille_envoyé, taille_attendu):
             json.dump(message_reçu_erreur, f, indent=4)
 
 
-def attendre_ping():
-    # On crée un nouveau socket pour écouter le serveur
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
-        # Permet de relancer le script sans attendre que le port se libère
-        #listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        listener.bind(('', 8888))
-        listener.listen(1)
-        print("En attente de pings du serveur sur le port 8888...")
-
-        while True:
-            # On accepte la connexion entrante du serveur
-            server_sock, addr = listener.accept()
-            with server_sock:
-                # Lecture du ping (taille + contenu)
-                header = server_sock.recv(4)
-                if header:
-                    taille = struct.unpack("I", header)[0]
-                    data = server_sock.recv(taille)
-                    requete = json.loads(data.decode("utf-8"))
-
-                    if requete.get("request") == "ping":
-                        # Préparation et envoi du pong
-                        reponse = json.dumps({"response": "pong"}).encode("utf-8")
-                        taille_resp = struct.pack("I", len(reponse))
-                        server_sock.sendall(taille_resp + reponse)
-                        print(f"Ping reçu de {addr} -> Pong envoyé !")
+def attendre_ping(client):
+   header = client.recv(4)
+   taille = struct.unpack("I", header)[0]
+   data = client.recv(taille)
+   requete = json.loads(data.decode("utf-8"))
+   if requete.get("request") == "ping":
+        # Préparation et envoi du pong
+        reponse = json.dumps({"response": "pong"}).encode("utf-8")
+        taille_resp = struct.pack("I", len(reponse))
+        client.sendall(taille_resp + reponse)
+        print(" Pong envoyé !")
 
 serverAddress= ("172.17.10.50", 3000)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
@@ -84,5 +69,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
     
     recevoir(client, taille_envoyé, taille_attendu)
-
-attendre_ping()
+    
+    attendre_ping(client)
