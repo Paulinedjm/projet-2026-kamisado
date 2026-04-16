@@ -50,38 +50,40 @@ def recevoir(client, taille_envoyé, taille_attendu):
 
 
 def attendre_ping():
-    # On crée un nouveau socket pour écouter le serveur
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
-        # Permet de relancer le script sans attendre que le port se libère
-        #listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listener.bind(('', 8888))
         listener.listen(1)
-        print("En attente de pings du serveur sur le port 8888...")
+        print("En attente de pings...")
 
         while True:
-            # On accepte la connexion entrante du serveur
             server_sock, addr = listener.accept()
             with server_sock:
-                # Lecture du ping (taille + contenu)
+                # 1. On lit d'abord les 4 octets du header
                 header = server_sock.recv(4)
-                if header:
-                    taille = struct.unpack("I", header)[0]
-                    data = server_sock.recv(taille)
-                    requete = json.loads(data.decode("utf-8"))
+                # 2. On calcule la taille du message
+                taille = struct.unpack("I", header)[0]
+                # 3. On lit exactement le nombre d'octets annoncés
+                data = server_sock.recv(taille)
+                # 4. MAINTENANT on peut faire le json.loads
+                requete = json.loads(data.decode("utf-8"))
 
-                    if requete.get("request") == "ping":
-                        # Préparation et envoi du pong
-                        reponse = json.dumps({"response": "pong"}).encode("utf-8")
-                        taille_resp = struct.pack("I", len(reponse))
-                        server_sock.sendall(taille_resp + reponse)
-                        print(f"Ping reçu de {addr} -> Pong envoyé !")
+                if requete.get("request") == "ping":
+                    # Pour répondre, on fait l'inverse :
+                    reponse_dict = {"response": "pong"}
+                    reponse_json = json.dumps(reponse_dict).encode("utf-8")
+                    header_resp = struct.pack("I", len(reponse_json))
+                    
+                    server_sock.sendall(header_resp + reponse_json)
+                    print(f"Ping reçu de {addr} -> Pong envoyé !")
 
-serverAddress= ("172.17.10.50", 3000)
+serverAddress= ("172.17.10.46", 3000)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress))  
     taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
     
     recevoir(client, taille_envoyé, taille_attendu)
+<<<<<<< HEAD
 
 attendre_ping()
 
@@ -89,3 +91,6 @@ attendre_ping()
 def first_player() : 
     
 def second_player():
+=======
+    attendre_ping()
+>>>>>>> 33ae9dd2df40227bbfc07d3cfcc7b2682489a2f1
