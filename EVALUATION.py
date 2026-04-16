@@ -76,7 +76,7 @@ def attendre_ping():
                         server_sock.sendall(taille_resp + reponse)
                         print(f"Ping reçu de {addr} -> Pong envoyé !")
 
-serverAddress= ("172.17.10.46", 3000)
+serverAddress= ("172.17.10.50", 3000)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress))  
     #execution
@@ -86,12 +86,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     recevoir(client, taille_envoyé, taille_attendu)
 
 attendre_ping()
-  
-
-
-    
-
-       
-
-
-
