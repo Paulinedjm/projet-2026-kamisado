@@ -83,6 +83,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     
     recevoir(client, taille_envoyé, taille_attendu)
 
-attendre_ping()
+    attendre_ping()
+
+def state():
+    client= client.recv(4)
+    
 
 
