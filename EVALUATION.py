@@ -2,11 +2,6 @@ import socket
 import struct 
 import json
 
-serverAddress= ("172.20.10.3", 3000)
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-    client.connect((serverAddress))
-    
-
 
 def envoyé(client):
     envoi= {
@@ -53,23 +48,20 @@ def recevoir(client, taille_envoyé, taille_attendu):
         with open("eval.json", "w") as f:
             json.dump(message_reçu_erreur, f, indent=4)
 
+serverAddress= ("127.0.0.1", 3000)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+    client.connect((serverAddress))  
+    #execution
+
+    taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
+    
+    recevoir(client, taille_envoyé, taille_attendu)
+  
+
+
+    
+
        
-#execution
-
-taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
-
-recevoir(client, taille_envoyé, taille_attendu)
 
 
 
-"""
- if envoyé(client.send)== len(envoyé(envoi)):
-        reçu={
-          "response": "ok"
-        }
-        #transformer le message binaire en texte -> pour ensuite le transofrmer en dico
-        response= json.loads(reçu.decode("utf-8"))
-        #ouverture de fichier et mettre response en texte str sur le eval.json
-        with open("eval.json", "w") as f : 
-            json.dumps(response, indent=4)
-"""
