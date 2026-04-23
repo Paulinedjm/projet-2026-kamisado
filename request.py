@@ -2,7 +2,7 @@ import socket
 import json
 import struct 
 
-serverAddress = ("172.17.10.41", 3000)
+serverAddress = ("172.17.10.1", 3000)
 
 def send_json(sock, data):
     message = json.dumps(data).encode("utf-8")

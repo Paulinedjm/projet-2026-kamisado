@@ -78,7 +78,7 @@ def attendre_ping():
                     server_sock.send(taille_resp + reponse)
                     print(f"Ping reçu de {addr} -> Pong envoyé !")
 
-serverAddress= ("172.17.10.46", 3000)
+serverAddress= ("127.0.0.1", 3000)
 
 
 def state(client):
@@ -105,6 +105,7 @@ def envoyer_coup(client, move):
     client.send(header + message_json)
 
 
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress))  
     taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
@@ -115,7 +116,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     while True:
         message = state(client)
         if message["request"] == "play":
-            etat = message["state"]
+            etat = message["state"] #"color": null, "current": 0, "players": ["LUR", "FKY"]}
             coup = random
             envoyer_coup(client, coup)
 
