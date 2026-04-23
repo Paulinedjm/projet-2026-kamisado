@@ -115,12 +115,7 @@ def envoyer_coup(client, move):
 
 
 
-def find_tower_position(board, color_to_find, player_id):
-    """
-    board: la grille 8x8
-    color_to_find: la couleur imposée (ex: "RED")
-    player_id: ton numéro de joueur (ex: 0 ou 1)
-    """
+def find_tower_position(board, color_to_find, player_id):  ##  board: la grille 8x8, color_to_find: la couleur imposée (ex: "RED"),  player_id: ton numéro de joueur (ex: 0 ou 1)
     for r in range(8): # Parcourt les lignes de 0 à 7
         for c in range(8): # Parcourt les colonnes de 0 à 7
             case = board[r][c]
@@ -134,12 +129,7 @@ def find_tower_position(board, color_to_find, player_id):
                     
     return None # Si on n'a rien trouvé (ne devrait pas arriver)
 
-def get_legal_moves(state, color_to_play, player_id):
-    """
-    state: le plateau (grille 8x8)
-    color_to_play: la couleur de la tour que je DOIS bouger
-    player_id: 0 pour le joueur du bas (monte), 1 pour le joueur du haut (descend)
-    """
+def get_legal_moves(state, color_to_play, player_id):   # state: le plateau (grille 8x8), color_to_play: la couleur de la tour que je DOIS bouger, player_id: 0 pour le joueur du bas (monte), 1 pour le joueur du haut (descend)
     moves = [] #on cree une liste de coordonnées de coups possible
     
     # 1. Trouver les coordonnées (r, c) de la tour de la bonne couleur
@@ -161,7 +151,6 @@ def get_legal_moves(state, color_to_play, player_id):
             c += dc
             
     return moves
-
 
 
 
