@@ -29,11 +29,11 @@ def recevoir(client, taille_envoyé, taille_attendu):
         
     
         # lire la taille de la réponse 4 oct
-        response= client.recv(4)
+        response= receive_all(client,4)
         taille_response= struct.unpack("I", response)[0]
     
         #recevoir 
-        data= client.recv(taille_response)
+        data= receive_all(client, taille_response)
         #On décode et on transforme en dictionnaire
         response = json.loads(data.decode("utf-8"))
         
@@ -91,10 +91,10 @@ serverAddress= ("172.17.10.125", 3000)
 
 
 def state(client):
-    state_all= client.recv(4)
+    state_all= receive_all(client,4)
     taille_response= struct.unpack("I", state_all)[0]
     #recevoir 
-    data= client.recv(taille_response)
+    data= receive_all(client,taille_response)
     #On décode et on transforme en dictionnaire
     response = json.loads(data.decode("utf-8"))
 
@@ -176,7 +176,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     recevoir(client, taille_envoyé, taille_attendu)
 
     
-
 
     while True:
         message = state(client)
