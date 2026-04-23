@@ -29,11 +29,11 @@ def recevoir(client, taille_envoyé, taille_attendu):
         
     
         # lire la taille de la réponse 4 oct
-        response= client.recv(4)
+        response= receive_all(client,4)
         taille_response= struct.unpack("I", response)[0]
     
         #recevoir 
-        data= client.recv(taille_response)
+        data= receive_all(client, taille_response)
         #On décode et on transforme en dictionnaire
         response = json.loads(data.decode("utf-8"))
         
@@ -49,6 +49,15 @@ def recevoir(client, taille_envoyé, taille_attendu):
         with open("eval.json", "w") as f:
             json.dump(message_reçu_erreur, f, indent=4)
 
+def receive_all(sock, n):   ##S'assure de lire exactement n octets, même si le message arrive par morceaux.
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None # La connexion a été coupée
+        data.extend(packet)
+    return data
+
 
 def attendre_ping():
     # On crée un nouveau socket pour écouter le serveur
@@ -63,32 +72,29 @@ def attendre_ping():
             # On accepte la connexion entrante du serveur
             server_sock, addr = listener.accept()
             with server_sock:
-                # on lit les 4 octet
-                header = server_sock.recv(4)
+                # Lire la taille (4 octets - entier non signé "I")
+                header = receive_all(server_sock, 4)
                 #mesure la taille
                 taille = struct.unpack("I", header)[0]
                 #lit exactement le nombre d'octet annonce
-                data = server_sock.recv(taille)
+                data = receive_all(server_sock, taille)
                 requete = json.loads(data.decode("utf-8"))
 
                 if requete.get("request") == "ping":
                         # Préparation et envoi du pong
                     reponse = json.dumps({"response": "pong"}).encode("utf-8")
                     taille_resp = struct.pack("I", len(reponse))
-                    server_sock.send(taille_resp + reponse)
+                    server_sock.sendall(taille_resp + reponse)
                     print(f"Ping reçu de {addr} -> Pong envoyé !")
 
 serverAddress= ("172.17.10.125", 3000)
 
 
 def state(client):
-    state_all= client.recv(4)
-    if len(state_all) < 4:
-        print("Erreur pas assez octets")
-        return None 
+    state_all= receive_all(client,4)
     taille_response= struct.unpack("I", state_all)[0]
     #recevoir 
-    data= client.recv(taille_response)
+    data= receive_all(client,taille_response)
     #On décode et on transforme en dictionnaire
     response = json.loads(data.decode("utf-8"))
 
@@ -175,9 +181,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
         message = state(client)
         if message["request"] == "play":
 
-            etat = message["state"] #"color": null, "current": 0, "players": ["LUR", "FKY"]}
-            coup = random
-            envoyer_coup(client, coup)
+        
 
             # On récupère les infos du message serveur
             plateau = message["state"]["board"]
@@ -208,8 +212,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
                 envoyer_coup(client, move)
 
             
-
-
-
-
-
