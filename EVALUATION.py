@@ -78,7 +78,7 @@ def attendre_ping():
                     server_sock.send(taille_resp + reponse)
                     print(f"Ping reçu de {addr} -> Pong envoyé !")
 
-serverAddress= ("172.17.10.46", 3000)
+serverAddress= ("172.17.10.125", 3000)
 
 
 def state(client):
