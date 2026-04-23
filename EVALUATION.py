@@ -70,7 +70,7 @@ def recevoir(client, taille_envoyé, taille_attendu):
 
               
               
-serverAddress= ("172.17.10.125", 3000)
+serverAddress= ("127.0.0.1", 3000)
 
 
 def state(client):
@@ -112,7 +112,7 @@ def find_tower_position(board, color_to_find, player_id):
             if case is not None:
                 # On vérifie si c'est notre tour (player_id) 
                 # et si c'est la bonne couleur
-                if case['player'] == player_id and case['color'] == color_to_find:
+                if case["current"] == player_id and case["color"] == color_to_find:
                     return r, c # On a trouvé ! On renvoie la position
                     
     return None # Si on n'a rien trouvé (ne devrait pas arriver)

@@ -5,7 +5,7 @@
     "state": {
         "players": [
             "Pauline et Cindy",
-            "Biberon et Au lit"
+            "Pauline"
         ],
         "current": 0,
         "color": null,
@@ -21,7 +21,7 @@
                 [
                     "blue",
                     [
-                        "green",
+                        "blue",
                         "light"
                     ]
                 ],
@@ -35,14 +35,14 @@
                 [
                     "pink",
                     [
-                        "orange",
+                        "brown",
                         "light"
                     ]
                 ],
                 [
                     "yellow",
                     [
-                        "brown",
+                        "orange",
                         "light"
                     ]
                 ],
@@ -56,7 +56,7 @@
                 [
                     "green",
                     [
-                        "blue",
+                        "green",
                         "light"
                     ]
                 ],
@@ -275,57 +275,57 @@
             [
                 [
                     "brown",
-                    [
-                        "green",
-                        "dark"
-                    ]
-                ],
-                [
-                    "green",
-                    [
-                        "orange",
-                        "dark"
-                    ]
-                ],
-                [
-                    "red",
                     [
                         "red",
                         "dark"
                     ]
                 ],
                 [
-                    "yellow",
+                    "green",
+                    [
+                        "green",
+                        "dark"
+                    ]
+                ],
+                [
+                    "red",
                     [
                         "pink",
                         "dark"
                     ]
                 ],
                 [
-                    "pink",
-                    [
-                        "yellow",
-                        "dark"
-                    ]
-                ],
-                [
-                    "purple",
-                    [
-                        "purple",
-                        "dark"
-                    ]
-                ],
-                [
-                    "blue",
+                    "yellow",
                     [
                         "brown",
                         "dark"
                     ]
                 ],
                 [
-                    "orange",
+                    "pink",
+                    [
+                        "orange",
+                        "dark"
+                    ]
+                ],
+                [
+                    "purple",
+                    [
+                        "yellow",
+                        "dark"
+                    ]
+                ],
+                [
+                    "blue",
                     [
                         "blue",
+                        "dark"
+                    ]
+                ],
+                [
+                    "orange",
+                    [
+                        "purple",
                         "dark"
                     ]
                 ]
