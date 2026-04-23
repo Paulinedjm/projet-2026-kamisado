@@ -2,7 +2,7 @@ import socket
 import struct 
 import random
 import json
-
+import threading
 
 def envoyé(client):
     envoi= {
@@ -49,6 +49,15 @@ def recevoir(client, taille_envoyé, taille_attendu):
         with open("eval.json", "w") as f:
             json.dump(message_reçu_erreur, f, indent=4)
 
+def receive_all(sock, n):   ##S'assure de lire exactement n octets, même si le message arrive par morceaux.
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None # La connexion a été coupée
+        data.extend(packet)
+    return data
+
 
 def attendre_ping():
     # On crée un nouveau socket pour écouter le serveur
@@ -63,19 +72,19 @@ def attendre_ping():
             # On accepte la connexion entrante du serveur
             server_sock, addr = listener.accept()
             with server_sock:
-                # on lit les 4 octet
-                header = server_sock.recv(4)
+                # Lire la taille (4 octets - entier non signé "I")
+                header = receive_all(server_sock, 4)
                 #mesure la taille
                 taille = struct.unpack("I", header)[0]
                 #lit exactement le nombre d'octet annonce
-                data = server_sock.recv(taille)
+                data = receive_all(server_sock, taille)
                 requete = json.loads(data.decode("utf-8"))
 
                 if requete.get("request") == "ping":
                         # Préparation et envoi du pong
                     reponse = json.dumps({"response": "pong"}).encode("utf-8")
                     taille_resp = struct.pack("I", len(reponse))
-                    server_sock.send(taille_resp + reponse)
+                    server_sock.sendall(taille_resp + reponse)
                     print(f"Ping reçu de {addr} -> Pong envoyé !")
 
 serverAddress= ("172.17.10.125", 3000)
@@ -83,7 +92,7 @@ serverAddress= ("172.17.10.125", 3000)
 
 def state(client):
     state_all= client.recv(4)
-    taille_response= struct.unpack("I", response)[0]
+    taille_response= struct.unpack("I", state_all)[0]
     #recevoir 
     data= client.recv(taille_response)
     #On décode et on transforme en dictionnaire
@@ -91,7 +100,7 @@ def state(client):
 
     #écrire dans le fichier json eval l'état de la board, le joueur qui doit jouer, et le pion à jouer
     with open("eval.json", "w") as f:
-        json.dump(state_all, f, indent=4)
+        json.dump(response, f, indent=4)
     
     return response
 
@@ -101,8 +110,9 @@ def envoyer_coup(client, move):
         "move": move
     }
     message_json = json.dumps(reponse).encode("utf-8")
-    header = struct.pack("!I", len(message_json))
+    header = struct.pack("I", len(message_json))
     client.send(header + message_json)
+
 
 
 def find_tower_position(board, color_to_find, player_id):
@@ -154,18 +164,28 @@ def get_legal_moves(state, color_to_play, player_id):
 
 
 
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-    client.connect((serverAddress))  
+    client.connect((serverAddress)) 
+
+    ping_tr= threading.Thread(target=attendre_ping, daemon=True)
+    ping_tr.start()
+
     taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
     
     recevoir(client, taille_envoyé, taille_attendu)
 
-    attendre_ping()
+    
 
 
     while True:
         message = state(client)
         if message["request"] == "play":
+
+            etat = message["state"] #"color": null, "current": 0, "players": ["LUR", "FKY"]}
+            coup = random
+            envoyer_coup(client, coup)
+
             # On récupère les infos du message serveur
             plateau = message["state"]["board"]
             couleur_voulue = message["state"]["next_color"]
@@ -190,8 +210,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
                 ]  #notre move dans le bon format
 
                 reponse = {"response": "move", "move": move}
+                #envoyer move au serveur
 
+                envoyer_coup(client, move)
 
-
-
-
+            

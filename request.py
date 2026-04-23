@@ -1,15 +1,26 @@
 import socket 
 import struct 
+
+
+serverAddress = ("172.17.10.1", 3000)
+
+def send_json(sock, data):
+    message = json.dumps(data).encode("utf-8")
+    length = struct.pack('I', len(message)) 
+    sock.sendall(length)
+    sock.sendall(message)
+
 import random
 import json
+
 
 
 def envoyé(client):
     envoi= {
       "request": "subscribe",
-      "port": 8888,
+      "port": 8889,
       "name": "Pauline",
-      "matricules": ["24343", "24160"]
+      "matricules": ["0000", "24160"]
     }
     #preparation du message + taille
     message_json= json.dumps(envoi).encode("utf-8")
@@ -55,7 +66,7 @@ def attendre_ping():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         # Permet de relancer le script sans attendre que le port se libère
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        listener.bind(('', 8888))
+        listener.bind(('', 8889))
         listener.listen(1)
         print("En attente de pings du serveur sur le port 8888...")
 
