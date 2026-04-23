@@ -83,6 +83,9 @@ serverAddress= ("172.17.10.125", 3000)
 
 def state(client):
     state_all= client.recv(4)
+    if len(state_all) < 4:
+        print("Erreur pas assez octets")
+        return None 
     taille_response= struct.unpack("I", state_all)[0]
     #recevoir 
     data= client.recv(taille_response)
@@ -167,7 +170,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     recevoir(client, taille_envoyé, taille_attendu)
 
     
-
 
     while True:
         message = state(client)
