@@ -8,7 +8,7 @@ def envoyé(client):
     envoi= {
       "request": "subscribe",
       "port": 8888,
-      "name": "Pauline et Cindy",
+      "name": "Pauline",
       "matricules": ["24343", "24160"]
     }
     #preparation du message + taille
@@ -99,16 +99,16 @@ def envoyer_coup(client, move):
 
 
 def find_tower_position(board, color_to_find, player_id):  ##  board: la grille 8x8, color_to_find: la couleur imposée (ex: "RED"),  player_id: ton numéro de joueur (ex: 0 ou 1)
+    current_player = "dark" if player_id == 0 else "light"
     for r in range(8): # Parcourt les lignes de 0 à 7
         for c in range(8): # Parcourt les colonnes de 0 à 7
             case = board[r][c]
             
             # On vérifie si la case n'est pas vide
-            if case is not None:
-                # On vérifie si c'est notre tour (player_id) 
-                # et si c'est la bonne couleur
-                if case['player'] == player_id and case['color'] == color_to_find:
-                    return r, c # On a trouvé ! On renvoie la position
+            if case[1] is not None :
+                # On vérifie si c'est notre tour (player_id)  et si c'est la bonne couleur
+                if case[1][1] == current_player and case[1][0]== color_to_find:
+                    return r, c # On a trouvé, On renvoie la position 
                     
     return None # Si on n'a rien trouvé (ne devrait pas arriver)
 
