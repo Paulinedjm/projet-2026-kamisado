@@ -182,10 +182,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
         message = state(client)
         if message["request"] == "play":
 
-            etat = message["state"] #"color": null, "current": 0, "players": ["LUR", "FKY"]}
-            coup = random
-            envoyer_coup(client, coup)
-
             # On récupère les infos du message serveur
             plateau = message["state"]["board"]
             couleur_voulue = message["state"]["next_color"]
