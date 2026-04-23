@@ -9,7 +9,7 @@ def envoyé(client):
       "request": "subscribe",
       "port": 8888,
       "name": "Pauline",
-      "matricules": ["24343", "24160"]
+      "matricules": ["20343", "20160"]
     }
     #preparation du message + taille
     message_json= json.dumps(envoi).encode("utf-8")
@@ -90,7 +90,8 @@ def state(client):
 def envoyer_coup(client, move):
     reponse = {
         "response": "move",
-        "move": move
+        "move": move,
+        "message" : "On joue!"
     }
     message_json = json.dumps(reponse).encode("utf-8")
     header = struct.pack("I", len(message_json))
@@ -106,9 +107,17 @@ def find_tower_position(board, color_to_find, player_id):  ##  board: la grille 
             
             # On vérifie si la case n'est pas vide
             if case[1] is not None :
-                # On vérifie si c'est notre tour (player_id)  et si c'est la bonne couleur
-                if case[1][1] == current_player and case[1][0]== color_to_find:
-                    return r, c # On a trouvé, On renvoie la position 
+                tile_color = case[1][0]
+                tile_kind = case[1][1]
+                
+                # 2. Vérifier si c'est une de nos tours
+                if tile_kind == current_player:
+                    
+                    if color_to_find is None:  ## CAS A : C'est le premier coup (color_to_find est None)
+                        return r, c
+                    
+                    elif tile_color == color_to_find:  # CAS B : La couleur est imposée
+                        return r, c
                     
     return None # Si on n'a rien trouvé (ne devrait pas arriver)
 
@@ -126,7 +135,7 @@ def get_legal_moves(state, color_to_play, player_id):   # state: le plateau (gri
         r, c = pos_r + direction, pos_c + dc
         
         # Tant qu'on est sur le plateau et que la case est vide
-        while 0 <= r < 8 and 0 <= c < 8 and state[r][c] == None:
+        while 0 <= r < 8 and 0 <= c < 8 and state[r][c][1] == None:
             moves.append((r, c)) # On ajoute la coordonnée comme coup possible
             
             # On continue d'avancer dans cette direction (comme une tour d'échecs)
@@ -170,14 +179,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
     
     
                 # On récupère les infos du message serveur
-                plateau = message["state"]["board"]
-                couleur_voulue = message["state"]["color"]
-                mon_id = message["state"]["current"]
-    
+                game_state = message["state"]
+                plateau = game_state["board"]
+                couleur_voulue = game_state["color"]
+                mon_id = game_state["current"]
+
                 position_depart = find_tower_position(plateau, couleur_voulue, mon_id)   # On trouve d'abord où est notre tour (le départ)
                 r_dep, c_dep = position_depart     # On récupère les coordonnées de départ
-    
-    
+                print(position_depart)
     
                 # On génère les coups
                 coup = get_legal_moves(plateau, couleur_voulue, mon_id)
@@ -192,7 +201,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
                         [r_arr, c_arr]
                     ]  #notre move dans le bon format
                     print(move)
-                    reponse = {"response": "move", "move": move}
+                    # reponse = {"response": "move", "move": move}
                     #envoyer move au serveur
     
                     envoyer_coup(client, move)
