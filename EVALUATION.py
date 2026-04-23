@@ -9,7 +9,7 @@ def envoyé(client):
       "request": "subscribe",
       "port": 8888,
       "name": "Pauline",
-      "matricules": ["20343", "20160"]
+      "matricules": ["24343", "24160"]
     }
     #preparation du message + taille
     message_json= json.dumps(envoi).encode("utf-8")
@@ -76,8 +76,11 @@ serverAddress= ("172.17.10.125", 3000)
 def state(client):
     state_all= client.recv(4)
     taille_response= struct.unpack("I", state_all)[0]
-    #recevoir 
-    data= client.recv(taille_response)
+    #cree une boucle pour etre sur qu'on recoit tout le message 
+    data = b""
+    while len(data) < taille_response:
+        morceau = client.recv(taille_response - len(data))
+        data += morceau 
     #On décode et on transforme en dictionnaire
     response = json.loads(data.decode("utf-8"))
 
