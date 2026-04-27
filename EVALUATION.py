@@ -171,7 +171,13 @@ def evaluer(minimax_board, player_id, color):
     elif check_win(opps, minimax_board): #si c'es l'adversaire qui a gagné = -infini
         return float('-inf')
     
-  
+    #Calculer le nombre de cases vides dans une liste
+    ligne_arrive= 0 if player_id==0 else 7 
+    cases_vides= [] 
+    pos_moi = find_tower_position(minimax_board, color, player_id)
+    for c in range(8):
+        if minimax_board[ligne_arrive][c][1] is None:
+            cases_vides.append(c) 
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
