@@ -8,8 +8,8 @@ def envoyé(client):
     envoi= {
       "request": "subscribe",
       "port": 8888,
-      "name": "Pauline et Cindy",
-      "matricules": ["24341", "24161"]
+      "name": "Pauline",
+      "matricules": ["24343", "24160"]
     }
     #preparation du message + taille
     message_json= json.dumps(envoi).encode("utf-8")
@@ -70,14 +70,17 @@ def recevoir(client, taille_envoyé, taille_attendu):
 
               
               
-serverAddress= ("172.17.10.125", 3000)
+serverAddress= ("127.0.0.1", 3000)
 
 
 def state(client):
     state_all= client.recv(4)
     taille_response= struct.unpack("I", state_all)[0]
-    #recevoir 
-    data= client.recv(taille_response)
+    #cree une boucle pour etre sur qu'on recoit tout le message 
+    data = b""
+    while len(data) < taille_response:
+        morceau = client.recv(taille_response - len(data))
+        data += morceau 
     #On décode et on transforme en dictionnaire
     response = json.loads(data.decode("utf-8"))
 
@@ -142,21 +145,27 @@ def get_legal_moves(state, color_to_play, player_id):   # state: le plateau (gri
             
     return moves
 
-#evaluer le best coup
-def evaluer(board, player_id):
+def check_win(player_id, board):
+    if player_id==0 :
+        line=0 #joueur 1 va à 0
+        kind= "dark"
+    else : 
+        line=7 #joueur 2 va à 7
+        kind= "light"
     
-    #inverser le signe du score à chaque changment du joueur 
-    #générer des coups
-    coups = get_legal_moves(board, color, player_id)
-
+    for col in range(8):
+        case= board[line][col]
+        if case[1] is not None and case[1][1]== kind:  #si à la ligne 0 ou 7 pour chaque colone, on a un pion qui a notre kind alors on a gagné 
+            
+            return True
+                  
+    return False #il y a pas encore ou pas du tout de win  
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress)) 
 
-    
     taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
-    
     recevoir(client, taille_envoyé, taille_attendu)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
@@ -172,8 +181,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
             message = state(client)
          
             if message["request"]== "ping":
-                
-    
+        
                 # Préparation et envoi du pong
                 reponse = json.dumps({"response": "pong"}).encode("utf-8")
                 taille_resp = struct.pack("I", len(reponse))
