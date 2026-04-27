@@ -145,6 +145,7 @@ def get_legal_moves(state, color_to_play, player_id):   # state: le plateau (gri
             
     return moves
 
+#Determination victoire 
 def check_win(player_id, board):
     if player_id==0 :
         line=0 #joueur 1 va à 0
@@ -160,6 +161,17 @@ def check_win(player_id, board):
             return True
                   
     return False #il y a pas encore ou pas du tout de win  
+
+#Stratégie pour gagner 
+def evaluer(minimax_board, player_id, color):
+    opps= 1 if player_id==0 else 0 #si je suis 1 alors adversaire 0 
+
+    if check_win(player_id, minimax_board): #si j'ai gagné le score c'est = +infini
+        return float('inf')
+    elif check_win(opps, minimax_board): #si c'es l'adversaire qui a gagné = -infini
+        return float('-inf')
+    
+  
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
