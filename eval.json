@@ -8,148 +8,142 @@
             "Cindy"
         ],
         "current": 0,
-        "color": "yellow",
+        "color": null,
         "board": [
             [
                 [
                     "orange",
                     [
-                        "red",
+                        "blue",
                         "light"
                     ]
                 ],
                 [
                     "blue",
                     [
-                        "orange",
+                        "red",
                         "light"
                     ]
                 ],
                 [
                     "purple",
-                    [
-                        "green",
-                        "light"
-                    ]
-                ],
-                [
-                    "pink",
                     [
                         "pink",
                         "light"
                     ]
                 ],
                 [
-                    "yellow",
-                    [
-                        "yellow",
-                        "light"
-                    ]
-                ],
-                [
-                    "red",
-                    [
-                        "blue",
-                        "light"
-                    ]
-                ],
-                [
-                    "green",
-                    null
-                ],
-                [
-                    "brown",
-                    null
-                ]
-            ],
-            [
-                [
-                    "red",
-                    null
-                ],
-                [
-                    "orange",
-                    null
-                ],
-                [
                     "pink",
-                    null
-                ],
-                [
-                    "green",
-                    null
-                ],
-                [
-                    "blue",
-                    null
-                ],
-                [
-                    "yellow",
-                    null
-                ],
-                [
-                    "brown",
-                    [
-                        "yellow",
-                        "dark"
-                    ]
-                ],
-                [
-                    "purple",
-                    null
-                ]
-            ],
-            [
-                [
-                    "green",
-                    null
-                ],
-                [
-                    "pink",
-                    null
-                ],
-                [
-                    "orange",
-                    null
-                ],
-                [
-                    "red",
-                    null
-                ],
-                [
-                    "purple",
                     [
                         "brown",
                         "light"
                     ]
                 ],
                 [
-                    "brown",
-                    null
+                    "yellow",
+                    [
+                        "orange",
+                        "light"
+                    ]
                 ],
                 [
-                    "yellow",
+                    "red",
+                    [
+                        "yellow",
+                        "light"
+                    ]
+                ],
+                [
+                    "green",
                     [
                         "purple",
                         "light"
                     ]
                 ],
                 [
-                    "blue",
-                    null
-                ]
-            ],
-            [
-                [
-                    "pink",
-                    null
-                ],
-                [
-                    "purple",
+                    "brown",
                     [
-                        "purple",
-                        "dark"
+                        "green",
+                        "light"
                     ]
+                ]
+            ],
+            [
+                [
+                    "red",
+                    null
+                ],
+                [
+                    "orange",
+                    null
+                ],
+                [
+                    "pink",
+                    null
+                ],
+                [
+                    "green",
+                    null
+                ],
+                [
+                    "blue",
+                    null
+                ],
+                [
+                    "yellow",
+                    null
+                ],
+                [
+                    "brown",
+                    null
+                ],
+                [
+                    "purple",
+                    null
+                ]
+            ],
+            [
+                [
+                    "green",
+                    null
+                ],
+                [
+                    "pink",
+                    null
+                ],
+                [
+                    "orange",
+                    null
+                ],
+                [
+                    "red",
+                    null
+                ],
+                [
+                    "purple",
+                    null
+                ],
+                [
+                    "brown",
+                    null
+                ],
+                [
+                    "yellow",
+                    null
+                ],
+                [
+                    "blue",
+                    null
+                ]
+            ],
+            [
+                [
+                    "pink",
+                    null
+                ],
+                [
+                    "purple",
+                    null
                 ],
                 [
                     "blue",
@@ -281,51 +275,57 @@
             [
                 [
                     "brown",
-                    null
-                ],
-                [
-                    "green",
                     [
                         "blue",
                         "dark"
                     ]
                 ],
                 [
-                    "red",
+                    "green",
                     [
-                        "orange",
+                        "pink",
                         "dark"
                     ]
                 ],
                 [
-                    "yellow",
-                    null
-                ],
-                [
-                    "pink",
+                    "red",
                     [
                         "red",
                         "dark"
                     ]
                 ],
                 [
-                    "purple",
+                    "yellow",
                     [
                         "brown",
                         "dark"
                     ]
                 ],
                 [
+                    "pink",
+                    [
+                        "orange",
+                        "dark"
+                    ]
+                ],
+                [
+                    "purple",
+                    [
+                        "purple",
+                        "dark"
+                    ]
+                ],
+                [
                     "blue",
                     [
-                        "green",
+                        "yellow",
                         "dark"
                     ]
                 ],
                 [
                     "orange",
                     [
-                        "pink",
+                        "green",
                         "dark"
                     ]
                 ]

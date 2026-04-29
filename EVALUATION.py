@@ -162,22 +162,36 @@ def check_win(player_id, board):
                   
     return False #il y a pas encore ou pas du tout de win  
 
-#Stratégie pour gagner 
-def evaluer(minimax_board, player_id, color):
-    opps= 1 if player_id==0 else 0 #si je suis 1 alors adversaire 0 
-
-    if check_win(player_id, minimax_board): #si j'ai gagné le score c'est = +infini
-        return float('inf')
-    elif check_win(opps, minimax_board): #si c'es l'adversaire qui a gagné = -infini
-        return float('-inf')
+#Simuler un move
+def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
+    #1 : trouver la pièce à bouger (par rapport à la case de l'adv)
     
-    #Calculer le nombre de cases vides dans une liste
-    ligne_arrive= 0 if player_id==0 else 7 
-    cases_vides= [] 
-    pos_moi = find_tower_position(minimax_board, color, player_id)
-    for c in range(8):
-        if minimax_board[ligne_arrive][c][1] is None:
-            cases_vides.append(c) 
+    #Tour de la bonne couleur (color) et le bon joueur(player_id)
+    pos = find_tower_position(minimax_board, color, player_id)
+    r_dep, c_dep = pos #pos de départ
+
+    #sauvegarde la pièce (case=(couleur_case, piece) )
+    piece = minimax_board[r_dep][c_dep][1]
+    #sauvegarder la case d'arrivé (car on va la modifier donc on doit pouvoir la restaurer après)
+    case_arrivee = minimax_board[r_arr][c_arr]
+    
+    #ex: je veux aller de (5,3)= ("blue", (pièce)) à (2,3)=("green", None)
+    # enregistrer la case (2,3) ce qu'il y avait avant 
+    #simuler le deplacement (2,3)= ("green", (pièce))
+    #du coup (5,3)= ("blue", None) après on efface le deplacement 
+
+    #2
+    #Simuler le déplacement 
+    minimax_board[r_arr][c_arr] = (minimax_board[r_arr][c_arr][0], piece)
+    minimax_board[r_dep][c_dep] = (minimax_board[r_dep][c_dep][0], None)
+    return r_dep, c_dep, case_arrivee, piece
+
+
+def unmake_move(board, r_dep, c_dep, r_arr, c_arr, case_arrivee, piece_dep):
+    """Annule le coup"""
+    board[r_dep][c_dep] = (board[r_dep][c_dep][0], piece_dep)
+    board[r_arr][c_arr] = case_arrivee
+
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
@@ -207,7 +221,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
                 print(f"Ping reçu de -> Pong envoyé !")
     
             elif message["request"] == "play":
-    
     
                 # On récupère les infos du message serveur
                 game_state = message["state"]
