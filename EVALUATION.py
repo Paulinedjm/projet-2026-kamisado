@@ -355,7 +355,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
                 if not coup:
                     reponse = {"response": "giveup"}
                 else:
-                    r_arr, c_arr = random.choice(coup)    # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
+                    r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
     
                     move = [
                         [r_dep, c_dep], 
