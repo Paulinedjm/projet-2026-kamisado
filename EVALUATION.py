@@ -192,7 +192,21 @@ def unmake_move(board, r_dep, c_dep, r_arr, c_arr, case_arrivee, piece_dep):
     board[r_dep][c_dep] = (board[r_dep][c_dep][0], piece_dep)
     board[r_arr][c_arr] = case_arrivee
 
+#fonction qui évalue les scores pour choisir le meilleur coup
+def evaluer(minimax_board, player_id, color):
+    opps= 1 if player_id==0 else 0 #si je suis 1 alors adversaire 0 
 
+    if check_win(player_id, minimax_board): #si j'ai gagné
+        return float(1)
+    elif check_win(opps, minimax_board): #si c'es l'adversaire qui a gagné 
+        return float(-1)
+    
+    #1. Distance entre notre position et la ligne d'arrivée
+    ligne_arrive= 0 if player_id==0 else 7 
+    pos_moi = find_tower_position(minimax_board, color, player_id)
+
+    distance = abs(pos_moi[0] - ligne_arrive)
+    score_position = 1 - (distance/7) # car distance max c'est 7 lignes 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress)) 
