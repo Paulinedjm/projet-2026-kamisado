@@ -278,6 +278,38 @@ def negamax(minimax_board, depth, player_id, color, alpha, beta):
         
     return scoreMax
 
+def meilleur_coup(board, player_id, color):
+    opps = 1 if player_id == 0 else 0 
+
+    coups = get_legal_moves(board, color, player_id)
+    # Si la liste est vide, on s'arrête tout de suite
+    if not coups:
+        return None
+    
+    # Initialiser avec le premier coup de la liste 
+    best_score = float('-inf')
+    best_move = coups[0]
+
+    #on test encore chaque coup possible
+    for r, c in coups:
+        couleur_suivante = board[r][c][0]
+
+        pos = find_tower_position(board, color, player_id)
+        piece = board[pos[0]][pos[1]][1]
+        r_dep, c_dep, ancienne_arrivee, piece = simulation_move(board, player_id, color, r, c)
+        
+        score = -negamax(board,4, opps, couleur_suivante, float("-inf"), float("inf"))
+        unmake_move(board, r_dep, c_dep, r, c, ancienne_arrivee, piece)
+        
+
+        if score > best_score:
+            best_score = score
+            best_move = (r, c)
+    return best_move
+
+
+    
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress)) 
