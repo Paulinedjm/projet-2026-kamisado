@@ -229,6 +229,14 @@ def evaluer(minimax_board, player_id, color):
     else:
         score_adv = 0
     
+    #Normalisation des scores pour qu'ils soient entre 0 à 1 
+    score= (
+    0.4 * score_position +
+    0.4 * score_mobilite +
+    0.2 * score_adv
+    )
+    
+    return score
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress)) 
 
