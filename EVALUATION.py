@@ -207,7 +207,28 @@ def evaluer(minimax_board, player_id, color):
 
     distance = abs(pos_moi[0] - ligne_arrive)
     score_position = 1 - (distance/7) # car distance max c'est 7 lignes 
-
+    
+    #choix de couleur de la case du pion 
+    couleur_case = minimax_board[pos_moi[0]][pos_moi[1]][0]
+    
+    #2.Voir le nombre de coups possibles qu'ilpeut faire 
+    max_coups = 20
+    nombrs_coups = get_legal_moves(minimax_board, couleur_case, opps)
+    score_mobilite = 1-(len(nombrs_coups)/max_coups) #plus il a de coup poss moins c'est bien pour nous 
+    if len(nombrs_coups) == 0:
+        return float(1)
+    
+    #3. Calcul de la distance de l'adv et sa ligne d'arrivée
+    pos_adv = find_tower_position(minimax_board, couleur_case, opps)
+    #distance de l'adversaire
+    if pos_adv:
+        ligne_arrive_adv = 7 if player_id == 0 else 0
+        distance_adv = abs(pos_adv[0] - ligne_arrive_adv)
+        score_adv= 1 - (distance_adv / 7)
+        
+    else:
+        score_adv = 0
+    
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress)) 
 
