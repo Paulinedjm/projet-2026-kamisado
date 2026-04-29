@@ -237,6 +237,48 @@ def evaluer(minimax_board, player_id, color):
     )
     
     return score
+
+def negamax(minimax_board, depth, player_id, color, alpha, beta):
+    opps = 1 if player_id == 0 else 0
+    #Condition d'arret: si depth==0 fin d'exploration pour pouvoir evaluer
+    if check_win(player_id, minimax_board) or check_win(opps, minimax_board) or depth == 0:
+        return evaluer(minimax_board, player_id, color)
+
+    #Recuperation des coups possibles sinon on évalue la pos directement  
+    coups = get_legal_moves(minimax_board, color, player_id)
+    if not coups:
+        return evaluer(minimax_board, player_id, color)
+    
+    #initialise le score maximum
+    scoreMax = float('-inf')
+    
+    #on teste chaque coup possible
+    for r, c in coups:
+        #recuperation de la couleur de notre case d'arrivé 
+        couleur_suivante = minimax_board[r][c][0]
+
+        #Position de départ de la pièce qu'on va bouger 
+        pos = find_tower_position(minimax_board, color, player_id)
+        piece = minimax_board[pos[0]][pos[1]][1]
+
+        #on simule un coup 
+        r_dep, c_dep, ancienne_arrivee, piece = simulation_move(minimax_board, player_id, color, r, c)
+
+        score = -negamax(minimax_board, depth - 1, opps, couleur_suivante, -beta, -alpha)
+  
+        unmake_move(minimax_board, r_dep, c_dep, r, c, ancienne_arrivee, piece)
+        
+        #on garde le meilleur coup trouvé 
+        if score > scoreMax:
+                scoreMax = score
+        if scoreMax > alpha:
+                alpha = scoreMax
+        if alpha >= beta:
+            break #il n'a pas besoin d'explorer cette branche 
+        
+    return scoreMax
+
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
     client.connect((serverAddress)) 
 
