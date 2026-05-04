@@ -48,28 +48,7 @@ def recevoir(client, taille_envoyé, taille_attendu):
         }
         with open("eval.json", "w") as f:
             json.dump(message_reçu_erreur, f, indent=4)
-
-
-
-
-#def attendre_ping():
-    # On crée un nouveau socket pour écouter le serveur
-        # Permet de relancer le script sans attendre que le port se libère
-        #listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        
-        #while True:
-            # On accepte la connexion entrante du serveur
-            
-            #with server_sock:
-            #    # Lire la taille (4 octets - entier non signé "I")
-            #    header = lsiterner.recv(server_sock, 4)
-            #    #mesure la taille
-            #    taille = struct.unpack("I", header)[0]
-            #    #lit exactement le nombre d'octet annonce
-            #    data = receive_all(server_sock, taille)
-            #    requete = json.loads(data.decode("utf-8"))
-
-              
+          
               
 serverAddress= ("127.0.0.1", 3000)
 
@@ -176,11 +155,7 @@ def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
     #sauvegarder la case d'arrivé (car on va la modifier donc on doit pouvoir la restaurer après)
     case_arrivee = minimax_board[r_arr][c_arr]
     
-    #ex: je veux aller de (5,3)= ("blue", (pièce)) à (2,3)=("green", None)
-    # enregistrer la case (2,3) ce qu'il y avait avant 
-    #simuler le deplacement (2,3)= ("green", (pièce))
-    #du coup (5,3)= ("blue", None) après on efface le deplacement 
-
+   
     #2
     #Simuler le déplacement 
     minimax_board[r_arr][c_arr] = (minimax_board[r_arr][c_arr][0], piece)
