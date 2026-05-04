@@ -9,7 +9,7 @@ def envoyé(client):
     envoi= {
       "request": "subscribe",
       "port": 8888,
-      "name": "Pauline",
+      "name": "Pauline et Cindy",
       "matricules": ["24343", "24160"]
     }
     #preparation du message + taille
@@ -218,29 +218,39 @@ def evaluate(minimax_board, player_id, color_to_play):
     our_type = "dark" if player_id == 0 else "light"
     opponent_type = "light" if player_id == 0 else "dark"
 
-    for r in range(8):
-        for c in range(8):
-            case = minimax_board[r][c]
-            if case[1] is not None:
-                tower_color, tower_type = case[1][0], case[1][1]
-                
-                if tower_type == our_type:
-                    my_moves = get_legal_moves(minimax_board, tower_color, player_id)
-                    my_mobility += len(my_moves)
-                    # Menace directe de gagner
-                    for coup_r, _ in my_moves:
-                        if coup_r == my_goal:
-                            score += 1.5
-                            break 
-                            
-                elif tower_type == opponent_type:
-                    opps_moves = get_legal_moves(minimax_board, tower_color, opponent)
-                    opps_mobility += len(opps_moves)
-                    # Menace adverse directe
-                    for pos_r, _ in opps_moves:
-                        if pos_r == opponent_goal:
-                            score -= 2.0
-                            break
+    #chercher la pos de la pièce que je dois jouer donc pas de boucle !!!
+    pos = find_tower_position(minimax_board, color_to_play, player_id)
+    
+    #si on trouve pas la tour/bloqué c'est mauvais
+    if pos is None:
+        return -1
+    #on récupère la case (r,c) de la tour 
+    r, c = pos
+    case = minimax_board[r][c]
+    
+    if case[1] is not None:
+        tower_color, tower_type = case[1][0], case[1][1]
+        case = minimax_board[r][c]
+        if case[1] is not None:
+            tower_color, tower_type = case[1][0], case[1][1]
+            
+            if tower_type == our_type:
+                my_moves = get_legal_moves(minimax_board, tower_color, player_id)
+                my_mobility += len(my_moves)
+                # Menace directe de gagner
+                for coup_r, _ in my_moves:
+                    if coup_r == my_goal:
+                        score += 1.5
+                        break 
+                        
+            elif tower_type == opponent_type:
+                opps_moves = get_legal_moves(minimax_board, tower_color, opponent)
+                opps_mobility += len(opps_moves)
+                # Menace adverse directe
+                for pos_r, _ in opps_moves:
+                    if pos_r == opponent_goal:
+                        score -= 2.0
+                        break
 
     score += (my_mobility - opps_mobility) * 0.1
 
@@ -251,12 +261,12 @@ def negamax(minimax_board, depth, player_id, color, alpha, beta):
     opps = 1 if player_id == 0 else 0
     #Condition d'arret: si depth==0 fin d'exploration pour pouvoir evaluer
     if check_win(player_id, minimax_board) or check_win(opps, minimax_board) or depth == 0:
-        return evaluer(minimax_board, player_id, color)
+        return evaluate(minimax_board, player_id, color)
 
     #Recuperation des coups possibles sinon on évalue la pos directement  
     coups = get_legal_moves(minimax_board, color, player_id)
     if not coups:
-        return evaluer(minimax_board, player_id, color)
+        return evaluate(minimax_board, player_id, color)
     
     #initialise le score maximum
     scoreMax = float('-inf')
@@ -363,6 +373,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         
                 if not coup:
                     reponse = {"response": "giveup"}
+                    print("Aucun coup légal trouvé")
                 else:
                     r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
     
