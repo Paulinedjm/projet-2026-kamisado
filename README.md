@@ -1,1 +1,12 @@
 # projet-2026-kamisado
+
+L'objectif de nos heuristique est de quantifier d’un plateau de jeu sur une échelle allant de -1 à 1.Pour cela, notre algorithme s’appuie sur une hiérarchie de critères tactiques sur les conditions de victoire imédiate, le deadlock et la mobilité des tours. 
+
+En premier on analyse si l'état actuelle pour mener a une victoire imédiate. Si l'état actuel du jeu permet à l'une de nos tours d'atteindre la ligne d'arrivée, nous attribuons un score maximal de +1. À l'inverse, si la situation permet à l'adversaire de gagner au coup suivant, le score tombe à -1.
+
+Ensuite, on verifie si un joueur se retrouve sans aucun mouvement possible avec la tour imposée, ce qui serrait un handacipe majeur. Si un joueur se retrouve dans cette impasse, nous appliquons une lourde pénalité de -4. 
+
+L'heuristique parcourt ensuite l'ensemble du plateau pour évaluer le potentiel de chaque tour présente. L'algorithme vérifie pour chaque tour si elle possède un mouvement légal capable d'atteindre la ligne de but adverse. Si c'est l'une des nôtres, on ajoute +1.5. Si c'est une tour adverse, on retire 2 points. On retire plus de points pour une menace ennemie qu’on en gagne pour une attaque, car il est plus important d'interrompe le progression de l'adversaire.
+Ensuite le code calcule le nombre total de coups possible pour nous (my_mobility) et pour l'adversaire (opps_mobility). On rajoute (my_mobility - opps_mobility) * 0.1 a notre score. Cela aide l'IA à choisir des positions où elle a de l'espace et du choix. 
+
+Pour finir, on utilise la fonction "tanh" sur le score total. Cela sert à écraser le résultat pour qu'il reste entre -1 et 1, peu importe si les points accumulés sont très élevés. Cela permet d'avoir une note propre et facile à comparer pour l'IA.
