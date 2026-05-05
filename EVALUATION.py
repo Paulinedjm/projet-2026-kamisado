@@ -3,12 +3,13 @@ import struct
 import random
 import json
 import threading
+import math
 
 def envoyé(client):
     envoi= {
       "request": "subscribe",
       "port": 8888,
-      "name": "Pauline",
+      "name": "Pauline et Cindy",
       "matricules": ["24343", "24160"]
     }
     #preparation du message + taille
@@ -47,28 +48,7 @@ def recevoir(client, taille_envoyé, taille_attendu):
         }
         with open("eval.json", "w") as f:
             json.dump(message_reçu_erreur, f, indent=4)
-
-
-
-
-#def attendre_ping():
-    # On crée un nouveau socket pour écouter le serveur
-        # Permet de relancer le script sans attendre que le port se libère
-        #listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        
-        #while True:
-            # On accepte la connexion entrante du serveur
-            
-            #with server_sock:
-            #    # Lire la taille (4 octets - entier non signé "I")
-            #    header = lsiterner.recv(server_sock, 4)
-            #    #mesure la taille
-            #    taille = struct.unpack("I", header)[0]
-            #    #lit exactement le nombre d'octet annonce
-            #    data = receive_all(server_sock, taille)
-            #    requete = json.loads(data.decode("utf-8"))
-
-              
+          
               
 serverAddress= ("127.0.0.1", 3000)
 
@@ -175,11 +155,7 @@ def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
     #sauvegarder la case d'arrivé (car on va la modifier donc on doit pouvoir la restaurer après)
     case_arrivee = minimax_board[r_arr][c_arr]
     
-    #ex: je veux aller de (5,3)= ("blue", (pièce)) à (2,3)=("green", None)
-    # enregistrer la case (2,3) ce qu'il y avait avant 
-    #simuler le deplacement (2,3)= ("green", (pièce))
-    #du coup (5,3)= ("blue", None) après on efface le deplacement 
-
+   
     #2
     #Simuler le déplacement 
     minimax_board[r_arr][c_arr] = (minimax_board[r_arr][c_arr][0], piece)
@@ -193,61 +169,79 @@ def unmake_move(board, r_dep, c_dep, r_arr, c_arr, case_arrivee, piece_dep):
     board[r_arr][c_arr] = case_arrivee
 
 #fonction qui évalue les scores pour choisir le meilleur coup
-def evaluer(minimax_board, player_id, color):
-    opps= 1 if player_id==0 else 0 #si je suis 1 alors adversaire 0 
+def evaluate(minimax_board, player_id, color_to_play):
+    opponent = 1 if player_id == 0 else 0
+    score = 0
 
-    if check_win(player_id, minimax_board): #si j'ai gagné
-        return float(1)
-    elif check_win(opps, minimax_board): #si c'es l'adversaire qui a gagné 
-        return float(-1)
-    
-    #1. Distance entre notre position et la ligne d'arrivée
-    ligne_arrive= 0 if player_id==0 else 7 
-    pos_moi = find_tower_position(minimax_board, color, player_id)
+    if check_win(player_id, minimax_board): 
+        return 1.0  # Victoire immédiate
+    if check_win(opponent, minimax_board): 
+        return -1.0 # Défaite immédiate
 
-    distance = abs(pos_moi[0] - ligne_arrive)
-    score_position = 1 - (distance/7) # car distance max c'est 7 lignes 
+    my_goal = 0 if player_id == 0 else 7
+    opponent_goal = 7 if player_id == 0 else 0
+
+    # Heuristique de "Deadlock" (Blocage)
+    if color_to_play is not None:
+        direct_moves = get_legal_moves(minimax_board, color_to_play, player_id)            
+        if len(direct_moves) == 0:        
+                score -= 4.0  
+
+    # Mobilité et Menaces
+    my_mobility = 0
+    opps_mobility = 0
+    our_type = "dark" if player_id == 0 else "light"
+    opponent_type = "light" if player_id == 0 else "dark"
+
+    #chercher la pos de la pièce que je dois jouer donc pas de boucle !!!
+    pos = find_tower_position(minimax_board, color_to_play, player_id)
     
-    #choix de couleur de la case du pion 
-    couleur_case = minimax_board[pos_moi[0]][pos_moi[1]][0]
+    #si on trouve pas la tour/bloqué c'est mauvais
+    if pos is None:
+        return -1
+    #on récupère la case (r,c) de la tour 
+    r, c = pos
+    case = minimax_board[r][c]
     
-    #2.Voir le nombre de coups possibles qu'ilpeut faire 
-    max_coups = 20
-    nombrs_coups = get_legal_moves(minimax_board, couleur_case, opps)
-    score_mobilite = 1-(len(nombrs_coups)/max_coups) #plus il a de coup poss moins c'est bien pour nous 
-    if len(nombrs_coups) == 0:
-        return float(1)
-    
-    #3. Calcul de la distance de l'adv et sa ligne d'arrivée
-    pos_adv = find_tower_position(minimax_board, couleur_case, opps)
-    #distance de l'adversaire
-    if pos_adv:
-        ligne_arrive_adv = 7 if player_id == 0 else 0
-        distance_adv = abs(pos_adv[0] - ligne_arrive_adv)
-        score_adv= 1 - (distance_adv / 7)
-        
-    else:
-        score_adv = 0
-    
-    #Normalisation des scores pour qu'ils soient entre 0 à 1 
-    score= (
-    0.4 * score_position +
-    0.4 * score_mobilite +
-    0.2 * score_adv
-    )
-    
-    return score
+    if case[1] is not None:
+        tower_color, tower_type = case[1][0], case[1][1]
+        case = minimax_board[r][c]
+        if case[1] is not None:
+            tower_color, tower_type = case[1][0], case[1][1]
+            
+            if tower_type == our_type:
+                my_moves = get_legal_moves(minimax_board, tower_color, player_id)
+                my_mobility += len(my_moves)
+                # Menace directe de gagner
+                for coup_r, _ in my_moves:
+                    if coup_r == my_goal:
+                        score += 1.5
+                        break 
+                        
+            elif tower_type == opponent_type:
+                opps_moves = get_legal_moves(minimax_board, tower_color, opponent)
+                opps_mobility += len(opps_moves)
+                # Menace adverse directe
+                for pos_r, _ in opps_moves:
+                    if pos_r == opponent_goal:
+                        score -= 2.0
+                        break
+
+    score += (my_mobility - opps_mobility) * 0.1
+
+
+    return math.tanh(score)
 
 def negamax(minimax_board, depth, player_id, color, alpha, beta):
     opps = 1 if player_id == 0 else 0
     #Condition d'arret: si depth==0 fin d'exploration pour pouvoir evaluer
     if check_win(player_id, minimax_board) or check_win(opps, minimax_board) or depth == 0:
-        return evaluer(minimax_board, player_id, color)
+        return evaluate(minimax_board, player_id, color)
 
     #Recuperation des coups possibles sinon on évalue la pos directement  
     coups = get_legal_moves(minimax_board, color, player_id)
     if not coups:
-        return evaluer(minimax_board, player_id, color)
+        return evaluate(minimax_board, player_id, color)
     
     #initialise le score maximum
     scoreMax = float('-inf')
@@ -354,6 +348,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         
                 if not coup:
                     reponse = {"response": "giveup"}
+                    print("Aucun coup légal trouvé")
                 else:
                     r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
     
