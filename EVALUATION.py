@@ -78,7 +78,6 @@ def envoyer_coup(client, move):
     client.send(header + message_json)
 
 
-
 def find_tower_position(board, color_to_find, player_id):  ##  board: la grille 8x8, color_to_find: la couleur imposée (ex: "RED"),  player_id: ton numéro de joueur (ex: 0 ou 1)
     
     current_player = "dark" if player_id == 0 else "light"
@@ -190,6 +189,10 @@ def evaluate(minimax_board, player_id, color_to_play):
     our_type = "dark" if player_id == 0 else "light"
     opponent_type = "light" if player_id == 0 else "dark"
 
+    #chercher la pos de la pièce que je dois jouer donc pas de boucle !!!
+    pos = find_tower_position(minimax_board, color_to_play, player_id)
+    
+
     for r in range(8):
         for c in range(8):
             case = minimax_board[r][c]
@@ -279,13 +282,14 @@ def meilleur_coup(board, player_id, color):
         piece = board[pos[0]][pos[1]][1]
         r_dep, c_dep, ancienne_arrivee, piece = simulation_move(board, player_id, color, r, c)
         
-        score = -negamax(board,4, opps, couleur_suivante, float("-inf"), float("inf"))
+        score = -negamax(board,3, opps, couleur_suivante, float("-inf"), float("inf"))
         unmake_move(board, r_dep, c_dep, r, c, ancienne_arrivee, piece)
         
 
         if score > best_score:
             best_score = score
             best_move = (r, c)
+    print("best move")
     return best_move
 
 
@@ -336,8 +340,12 @@ if __name__ == "__main__":
                     coup = get_legal_moves(plateau, couleur_voulue, mon_id)
             
                     if not coup:
-                        reponse = {"response": "giveup"}
                         print("Aucun coup légal trouvé")
+                        move = [
+                            [r_dep, c_dep], 
+                            [r_dep, c_dep]
+                        ]
+                        envoyer_coup(client, move)
                     else:
                         r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
         
