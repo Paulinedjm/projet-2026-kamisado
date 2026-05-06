@@ -110,6 +110,7 @@ def test_evaluate_mobilite():
     score_libre = evaluate(board_libre, 0, "RED")
     score_bloque = evaluate(board_bloque, 0, "RED")
     
+    print(score_libre, ">", score_bloque)
     assert score_libre > score_bloque #Une tour libre doit valoir plus qu'une tour bloquée 
 
 def test_evaluate_mobilite_adversaire():
@@ -197,3 +198,32 @@ def test_recevoir_success():
     with open("eval.json", "r") as f:
         contenu = json.load(f)
         assert contenu["response"] == "ok"
+
+def test_recevoir_erreur():
+    mock_client = MagicMock()
+    
+    # On simule un header vide (0 octets) ou une réponse qui force l'échec
+    header_vide = struct.pack("I", 0)
+    mock_client.recv.side_effect = [header_vide, b""]
+    
+    recevoir(mock_client, 100, 1)
+    
+    # On vérifie que le fichier contient bien l'erreur
+    with open("eval.json", "r") as f:
+        contenu = json.load(f)
+        assert contenu["response"] == "error"
+        assert "error" in contenu
+
+
+def test_find_tower_position_color_none():
+    # Plateau vide
+    board = [[(None, None) for _ in range(8)] for _ in range(8)]
+    
+    # Place une tour dark à la position (2, 3)
+    # Structure : case[1] = (couleur, type_joueur)
+    board[2][3] = ("case_info", ("RED", "dark"))
+    
+    # Appel avec None pour la couleur
+    result = find_tower_position(board, None, 0)
+    
+    assert result == (2, 3)       

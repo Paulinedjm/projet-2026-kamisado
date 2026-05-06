@@ -1,4 +1,4 @@
 {
-    "response": "ok",
-    "message": "Abonnement r\u00e9ussi"
+    "response": "error",
+    "error": "error message"
 }
