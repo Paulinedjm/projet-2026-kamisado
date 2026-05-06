@@ -44,6 +44,12 @@ def test_direction_player_1(): #verifie que ca va bien en diagonale
 
 
 #test find tower position
+def test_find_tower_sans_couleur():
+    board = create_empty_board()
+    board[3][5] = ("BLUE", ["RED", "dark"])
+    pos = find_tower_position(board, None, 0)
+    assert pos == (3, 5)
+    
 def test_find_tower():
     board = create_empty_board()
     board[7][0] = ("YELLOW", ["RED", "dark"]) #Joueur 0 (dark) : une tour rouge en (7, 0)
@@ -111,6 +117,23 @@ def test_evaluate_mobilite():
     score_bloque = evaluate(board_bloque, 0, "RED")
     
     assert score_libre > score_bloque #Une tour libre doit valoir plus qu'une tour bloquée 
+
+def test_evaluate_victoire_proche():
+    # Ma tour peut atteindre la ligne 0 en un coup → bonus +1.5
+    board_proche = create_empty_board()
+    board_proche[1][4] = ("RED", ["RED", "dark"])
+    score_proche = evaluate(board_proche, 0, "RED")
+
+    # Ma tour est bloquée et loin
+    board_loin = create_empty_board()
+    board_loin[6][4] = ("RED", ["RED", "dark"])
+    board_loin[5][4] = ("BLUE", ["BLUE", "light"])  # bloquée
+    board_loin[5][3] = ("BLUE", ["BLUE", "light"])
+    board_loin[5][5] = ("BLUE", ["BLUE", "light"])
+    score_loin = evaluate(board_loin, 0, "RED")
+
+    assert score_proche > score_loin
+
 
 
 def test_evaluate_mobilite_adversaire():
