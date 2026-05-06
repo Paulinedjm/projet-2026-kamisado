@@ -112,6 +112,7 @@ def test_evaluate_mobilite():
     
     assert score_libre > score_bloque #Une tour libre doit valoir plus qu'une tour bloquée 
 
+
 def test_evaluate_mobilite_adversaire():
     # Situation 1 : L'adversaire est TOTALEMENT LIBRE
     board_libre = create_empty_board()
