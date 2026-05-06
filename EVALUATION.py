@@ -347,15 +347,13 @@ if __name__ == "__main__":
                         ]
                         envoyer_coup(client, move)
                     else:
-                        r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
-        
+                        r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)  
                         move = [
                             [r_dep, c_dep], 
                             [r_arr, c_arr]
-                        ]  #notre move dans le bon format
+                        ]  
                         print(move)
-                        # reponse = {"response": "move", "move": move}
-                        #envoyer move au serveur
+                        
         
                         envoyer_coup(client, move)
     
