@@ -17,7 +17,9 @@ Ensuite, le code calcule le nombre total de coups possibles pour nous (my_mobili
 
 Pour finir, on utilise la fonction "tanh" sur le score total. Cela sert à normaliser le résultat pour qu'il reste entre -1 et 1, peu importe si les points accumulés sont très élevés. Cela permet d'avoir une note facile à comparer pour l'IA.
 
-## Les matricules (Cindy Njeumi Guetcho et Pauline de Jambiline) : 24343 - 24160
+## Les matricules
+
+(Cindy Njeumi Guetcho et Pauline de Jambiline) : 24343 - 24160
 
 ## Les bibliothèques utilisés :
 
