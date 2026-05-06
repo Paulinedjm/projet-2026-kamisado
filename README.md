@@ -10,3 +10,5 @@ L'heuristique parcourt ensuite l'ensemble du plateau pour évaluer le potentiel 
 Ensuite le code calcule le nombre total de coups possible pour nous (my_mobility) et pour l'adversaire (opps_mobility). On rajoute (my_mobility - opps_mobility) * 0.1 a notre score. Cela aide l'IA à choisir des positions où elle a de l'espace et du choix. 
 
 Pour finir, on utilise la fonction "tanh" sur le score total. Cela sert à écraser le résultat pour qu'il reste entre -1 et 1, peu importe si les points accumulés sont très élevés. Cela permet d'avoir une note propre et facile à comparer pour l'IA.
+
+24343 et 24160
