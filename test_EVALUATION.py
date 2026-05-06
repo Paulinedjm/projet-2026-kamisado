@@ -1,5 +1,6 @@
 import pytest 
-from EVALUATION import get_legal_moves, check_win, find_tower_position, meilleur_coup, unmake_move, simulation_move, envoyer_coup
+from EVALUATION import get_legal_moves, check_win, find_tower_position, meilleur_coup
+from EVALUATION import unmake_move, simulation_move, envoyer_coup, evaluate, negamax, state, envoyé, recevoir
 import struct
 import json
 from unittest.mock import MagicMock
@@ -71,6 +72,7 @@ def test_checkwin():
     board_2[0][5] = ("BLUE", ["BLUE", "light"]) #pion du joueur 1
     assert check_win(0, board_2) is False #Un pion adverse ne doit pas donner la victoire
 
+
 #test notre ia
 
 def test_victoire_immediate():
@@ -79,28 +81,6 @@ def test_victoire_immediate():
     coup_choisi = meilleur_coup(board, 0, "RED")
     coups_gagnants = [(0, 4), (0, 3), (0, 5)]
     assert coup_choisi in coups_gagnants
-
-# def test_ia_evite_donner_victoire():
-#     board = create_empty_board()
-
-#     couleurs = ["ORANGE", "BLUE", "PURPLE", "PINK", "YELLOW", "RED", "GREEN", "BROWN"]
-    
-#     # On remplit la ligne de départ du joueur 0 (bas) et du joueur 1 (haut)
-#     for i in range(8):
-#         # Joueur 1 (Haut, ligne 0)
-#         board[0][i] = (couleurs[i], [couleurs[i], "light"])
-#         # Joueur 0 (Bas, ligne 7)
-#         board[7][i] = (couleurs[i], [couleurs[i], "dark"])
-
-#     board[7][4] = ("RED", ["RED", "dark"])# Notre tour (Joueur 0, DARK) est en (7,4)
-#     board[6][0] = ("ORANGE", ["BLUE", "light"]) #tour de l'adversaire
-
-#     coup_choisi = meilleur_coup(board, 0, "RED")
-#     assert coup_choisi is not None
-
-#     assert coup_choisi is not None
-#     r, c = coup_choisi
-#     assert board[r][c][0] != "ORANGE"
 
 
 def test_unmakemove():
@@ -117,30 +97,88 @@ def test_unmakemove():
     assert board[7][4][1] == pion_original
     assert board[6][4][1] is None #"La case d'arrivée n'a pas été vidée après unmake_move !"
 
+def test_evaluate_mobilite():
+    # Plateau 1 : Tour très libre
+    board_libre = create_empty_board()
+    board_libre[4][4] = ("RED", ["RED", "dark"])
+    
+    # Plateau 2 : Tour bloquée
+    board_bloque = create_empty_board()
+    board_bloque[4][4] = ("RED", ["RED", "dark"])
+    board_bloque[3][4] = ("BLUE", ["BLUE", "light"]) # Bloque le haut
+    
+    score_libre = evaluate(board_libre, 0, "RED")
+    score_bloque = evaluate(board_bloque, 0, "RED")
+    
+    assert score_libre > score_bloque #Une tour libre doit valoir plus qu'une tour bloquée 
+
+
+def test_negamax_anticipation(): #On crée une situation où le joueur 0 va perdre au tour suivant SAUF s'il fait un mouvement précis maintenant.
+    board = create_empty_board()
+    # Ma tour RED est proche de la fin
+    board[1][4] = ("RED", ["RED", "dark"])
+    
+    # Si l'IA regarde à profondeur 1 ou plus, elle doit voir 
+    # que le score d'un mouvement vers la ligne 0 est maximal (+1.0)
+    score = negamax(board, 1, 0, "RED", float('-inf'), float('inf'))
+    
+    assert score > 0.5 # L'IA a vu une situation très favorable
+
 #tester nos fonction reseau
 
 def test_envoyer_coup_format():
-    # 1. On crée un faux client (mock)
-    mock_client = MagicMock()
+    mock_client = MagicMock()     # On crée un faux client (mock)
     move = [[7, 4], [5, 4]]
+    envoyer_coup(mock_client, move)  # On appelle la fonction avec le faux client
+    assert mock_client.send.called  # On vérifie que la méthode .send() a été appelée
     
-    # 2. On appelle ta fonction avec ce faux client
-    envoyer_coup(mock_client, move)
-    
-    # 3. On vérifie que la méthode .send() a été appelée
-    assert mock_client.send.called
-    
-    # 4. On récupère les données envoyées pour les inspecter
-    # call_args[0][0] récupère le premier argument du premier appel de .send()
     donnees_envoyees = mock_client.send.call_args[0][0]
-    
-    # On vérifie le header (4 octets, entier 'I')
     header = donnees_envoyees[:4]
     taille = struct.unpack("I", header)[0]
-    
-    # On vérifie le contenu JSON
     corps_json = json.loads(donnees_envoyees[4:].decode("utf-8"))
     
     assert corps_json["response"] == "move"
     assert corps_json["move"] == move
     assert taille == len(donnees_envoyees[4:])
+
+def test_recevoir_commande_play():
+    mock_socket = MagicMock()
+    reponse_serveur = {"request": "play", "color": "RED", "board": []}
+    message_utf8 = json.dumps(reponse_serveur).encode("utf-8")
+    header = struct.pack("I", len(message_utf8))
+    
+    mock_socket.recv.side_effect = [header, message_utf8]
+    resultat = state(mock_socket)
+    
+    assert resultat["request"] == "play"
+    assert resultat["color"] == "RED"
+
+
+def test_envoye_subscription():
+    mock_client = MagicMock()
+    mock_client.send.side_effect = lambda x: len(x)
+    taille_retournee, taille_totale = envoyé(mock_client)
+
+    assert mock_client.send.called
+    assert taille_retournee == taille_totale
+    
+    sent_data = mock_client.send.call_args[0][0]
+    header = sent_data[:4]
+    body = json.loads(sent_data[4:].decode("utf-8"))
+    
+    assert body["name"] == "Pauline et Cindy"
+    assert struct.unpack("I", header)[0] == len(sent_data) - 4
+
+def test_recevoir_success():
+    mock_client = MagicMock()
+    data_serveur = {"response": "ok", "message": "Abonnement réussi"}
+    msg_json = json.dumps(data_serveur).encode("utf-8")
+    header = struct.pack("I", len(msg_json))
+    
+    mock_client.recv.side_effect = [header, msg_json]
+    
+    recevoir(mock_client, 100, 100)
+    
+    with open("eval.json", "r") as f:
+        contenu = json.load(f)
+        assert contenu["response"] == "ok"
