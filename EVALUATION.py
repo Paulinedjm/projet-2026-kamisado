@@ -1,8 +1,6 @@
 import socket 
 import struct 
-import random
 import json
-import threading
 import math
 
 def envoyé(client):

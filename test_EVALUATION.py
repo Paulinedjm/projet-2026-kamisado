@@ -35,3 +35,20 @@ def test_direction_player_1(): #verifie que ca va bien en diagonale
     assert (1, 4) in moves
     assert (1, 3) in moves # diagonale
     assert (1, 5) in moves # diagonale
+
+def test_find_tower():
+    board = create_empty_board()
+    board[7][0] = ("YELLOW", ["RED", "dark"]) #Joueur 0 (dark) : une tour rouge en (7, 0)
+
+    board[0][7] = ("GREEN", ["RED", "light"]) #jouaur 1 (light), tour red en (0,7)
+
+    pos_red_0 = find_tower_position(board, "RED", 0)
+    assert pos_red_0 == (7, 0) #verifie la position de la tour du joueur 0
+
+    pos_red_1 = find_tower_position(board, "RED", 1)
+    assert pos_red_1 == (0, 7) #verifie la position de la tour du joueur 1
+
+    pos_none = find_tower_position(board, "ORANGE", 0)
+    assert pos_none is None #verifie qu'il ne trouve pas une tour qu'il doit pas jouer
+
+    
