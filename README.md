@@ -19,7 +19,7 @@ Pour finir, on utilise la fonction "tanh" sur le score total. Cela sert à norma
 
 ## Les matricules
 
-(Cindy Njeumi Guetcho et Pauline de Jambiline) : 24343 - 24160
+Cindy Njeumi Guetcho et Pauline de Jambiline : 24343 - 24160
 
 ## Les bibliothèques utilisés :
 
