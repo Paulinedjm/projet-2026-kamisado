@@ -112,6 +112,21 @@ def test_evaluate_mobilite():
     
     assert score_libre > score_bloque #Une tour libre doit valoir plus qu'une tour bloquée 
 
+def test_evaluate_mobilite_adversaire():
+    # Situation 1 : L'adversaire est TOTALEMENT LIBRE
+    board_libre = create_empty_board()
+    board_libre[7][4] = ("RED", ["RED", "dark"])   # Ma tour (Joueur 0)
+    board_libre[0][4] = ("RED", ["RED", "light"])  # Tour adverse (Joueur 1) de la MEME COULEUR que celle évaluée
+    score_libre = evaluate(board_libre, 0, "RED")
+    
+    # Situation 2 : L'adversaire est BLOQUÉ
+    board_bloque = create_empty_board()
+    board_bloque[7][4] = ("RED", ["RED", "dark"])
+    board_bloque[0][4] = ("RED", ["RED", "light"])
+    board_bloque[1][4] = ("BLUE", ["BLUE", "dark"]) # On met un obstacle juste devant la tour adverse (ligne 1)
+    score_bloque = evaluate(board_bloque, 0, "RED")
+    
+    assert score_bloque > score_libre
 
 def test_negamax_anticipation(): #On crée une situation où le joueur 0 va perdre au tour suivant SAUF s'il fait un mouvement précis maintenant.
     board = create_empty_board()
