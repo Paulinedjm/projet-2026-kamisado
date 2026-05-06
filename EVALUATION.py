@@ -30,7 +30,6 @@ def recevoir(client, taille_envoyé, taille_attendu):
         response= client.recv(4)
         taille_response= struct.unpack("I", response)[0]
     
-        #recevoir 
         data= client.recv(taille_response)
         #On décode et on transforme en dictionnaire
         response = json.loads(data.decode("utf-8"))
@@ -78,11 +77,11 @@ def envoyer_coup(client, move):
     client.send(header + message_json)
 
 
-def find_tower_position(board, color_to_find, player_id):  ##  board: la grille 8x8, color_to_find: la couleur imposée (ex: "RED"),  player_id: ton numéro de joueur (ex: 0 ou 1)
+def find_tower_position(board, color_to_find, player_id):  
     
     current_player = "dark" if player_id == 0 else "light"
-    for r in range(8): # Parcourt les lignes de 0 à 7
-        for c in range(8): # Parcourt les colonnes de 0 à 7
+    for r in range(8): 
+        for c in range(8): 
             case = board[r][c]
             
             # On vérifie si la case n'est pas vide
@@ -94,18 +93,16 @@ def find_tower_position(board, color_to_find, player_id):  ##  board: la grille 
                         return r,c
                     elif title_color==color_to_find:
             
-                      return r, c # On a trouvé, On renvoie la position 
+                      return r, c 
                     
-    return None # Si on n'a rien trouvé (ne devrait pas arriver)
+    return None 
 
-def get_legal_moves(state, color_to_play, player_id):   # state: le plateau (grille 8x8), color_to_play: la couleur de la tour que je DOIS bouger, player_id: 0 pour le joueur du bas (monte), 1 pour le joueur du haut (descend)
-    moves = [] #on cree une liste de coordonnées de coups possible
+def get_legal_moves(state, color_to_play, player_id):   
+    moves = [] 
     
-    # 1. Trouver les coordonnées (r, c) de la tour de la bonne couleur
     pos_r, pos_c = find_tower_position(state, color_to_play, player_id)
     
-    # 2. Définir les directions "avant" selon le joueur
-    direction = -1 if player_id == 0 else 1 #determine si on doit monter ou descendre dans le board en fonction du joueur qui joue, Si player_id == 0, on monte (ligne -1), si 1 on descend (ligne +1)
+    direction = -1 if player_id == 0 else 1 #determine si on doit monter ou descendre dans le board en fonction du joueur qui joue
     
     # Les 3 colonnes à tester : gauche (-1), tout droit (0), droite (+1), explore les 3 directions 
     for dc in [-1, 0, 1]:
@@ -113,9 +110,8 @@ def get_legal_moves(state, color_to_play, player_id):   # state: le plateau (gri
         
         # Tant qu'on est sur le plateau et que la case est vide
         while 0 <= r < 8 and 0 <= c < 8 and state[r][c][1] == None:
-            moves.append((r, c)) # On ajoute la coordonnée comme coup possible
+            moves.append((r, c))
             
-            # On continue d'avancer dans cette direction (comme une tour d'échecs)
             r += direction
             c += dc
             
@@ -136,13 +132,11 @@ def check_win(player_id, board):
             
             return True
                   
-    return False #il y a pas encore ou pas du tout de win  
+    return False
 
 #Simuler un move
-def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
-    #1 : trouver la pièce à bouger (par rapport à la case de l'adv)
-    
-    #Tour de la bonne couleur (color) et le bon joueur(player_id)
+def simulation_move(minimax_board, player_id, color, r_arr, c_arr):   
+
     pos = find_tower_position(minimax_board, color, player_id)
     r_dep, c_dep = pos #pos de départ
 
@@ -151,8 +145,6 @@ def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
     #sauvegarder la case d'arrivé (car on va la modifier donc on doit pouvoir la restaurer après)
     case_arrivee = minimax_board[r_arr][c_arr]
     
-   
-    #2
     #Simuler le déplacement 
     minimax_board[r_arr][c_arr] = (minimax_board[r_arr][c_arr][0], piece)
     minimax_board[r_dep][c_dep] = (minimax_board[r_dep][c_dep][0], None)
@@ -160,7 +152,6 @@ def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
 
 
 def unmake_move(board, r_dep, c_dep, r_arr, c_arr, case_arrivee, piece_dep):
-    """Annule le coup"""
     board[r_dep][c_dep] = (board[r_dep][c_dep][0], piece_dep)
     board[r_arr][c_arr] = case_arrivee
 
@@ -266,7 +257,6 @@ def meilleur_coup(board, player_id, color):
     opps = 1 if player_id == 0 else 0 
 
     coups = get_legal_moves(board, color, player_id)
-    # Si la liste est vide, on s'arrête tout de suite
     if not coups:
         return None
     
@@ -332,8 +322,8 @@ if __name__ == "__main__":
                     couleur_voulue = game_state["color"]
                     mon_id = game_state["current"]
     
-                    position_depart = find_tower_position(plateau, couleur_voulue, mon_id)   # On trouve d'abord où est notre tour (le départ)
-                    r_dep, c_dep = position_depart     # On récupère les coordonnées de départ
+                    position_depart = find_tower_position(plateau, couleur_voulue, mon_id)
+                    r_dep, c_dep = position_depart     
                     print(position_depart)
         
                     # On génère les coups
@@ -347,12 +337,12 @@ if __name__ == "__main__":
                         ]
                         envoyer_coup(client, move)
                     else:
-                        r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
+                        r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)  
         
                         move = [
                             [r_dep, c_dep], 
                             [r_arr, c_arr]
-                        ]  #notre move dans le bon format
+                        ]  
                         print(move)
                         # reponse = {"response": "move", "move": move}
                         #envoyer move au serveur
