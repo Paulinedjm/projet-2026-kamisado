@@ -1,9 +1,11 @@
 import pytest 
-from EVALUATION import get_legal_moves, check_win, find_tower_position
+from EVALUATION import get_legal_moves, check_win, find_tower_position, meilleur_coup
 
 def create_empty_board():
     return [[("WHITE", None) for _ in range(8)] for _ in range(8)]
 
+
+#test nos legal move
 def test_move_straight_line():  #verifie ligne droite
     board = create_empty_board()
     board[7][4] = ("RED", ["RED", "dark"]) # On place une tour DARK (joueur 0) en (7, 4)
@@ -33,9 +35,11 @@ def test_direction_player_1(): #verifie que ca va bien en diagonale
     moves = get_legal_moves(board, "GREEN", 1)
     
     assert (1, 4) in moves
-    assert (1, 3) in moves # diagonale
-    assert (1, 5) in moves # diagonale
+    assert (1, 3) in moves 
+    assert (1, 5) in moves 
 
+
+#test find tower position
 def test_find_tower():
     board = create_empty_board()
     board[7][0] = ("YELLOW", ["RED", "dark"]) #Joueur 0 (dark) : une tour rouge en (7, 0)
@@ -51,4 +55,46 @@ def test_find_tower():
     pos_none = find_tower_position(board, "ORANGE", 0)
     assert pos_none is None #verifie qu'il ne trouve pas une tour qu'il doit pas jouer
 
+#test notre check win
+def test_checkwin():
+    board = create_empty_board()
+
+    board[0][3] = ("RED", ["RED", "dark"])
+    assert check_win(0, board) is True
+    # Le joueur 1 n'a pas gagné pour autant
+    assert check_win(1, board) is False
+
+    board_2 = create_empty_board()
+    board_2[0][5] = ("BLUE", ["BLUE", "light"]) #pion du joueur 1
+    assert check_win(0, board_2) is False #Un pion adverse ne doit pas donner la victoire
+
+#test notre ia
+
+def test_victoire_immediate():
+    board = create_empty_board()
+    board[1][4] = ("RED", ["RED", "dark"])
+    coup_choisi = meilleur_coup(board, 0, "RED")
+    coups_gagnants = [(0, 4), (0, 3), (0, 5)]
+    assert coup_choisi in coups_gagnants
+
+def test_ia_evite_donner_victoire():
+    board = create_empty_board()
+
+    couleurs = ["ORANGE", "BLUE", "PURPLE", "PINK", "YELLOW", "RED", "GREEN", "BROWN"]
     
+    # On remplit la ligne de départ du joueur 0 (bas) et du joueur 1 (haut)
+    for i in range(8):
+        # Joueur 1 (Haut, ligne 0)
+        board[0][i] = (couleurs[i], [couleurs[i], "light"])
+        # Joueur 0 (Bas, ligne 7)
+        board[7][i] = (couleurs[i], [couleurs[i], "dark"])
+
+    board[7][4] = ("RED", ["RED", "dark"])# Notre tour (Joueur 0, DARK) est en (7,4)
+    board[6][0] = ("ORANGE", ["BLUE", "light"]) #tour de l'adversaire
+
+    coup_choisi = meilleur_coup(board, 0, "RED")
+    assert coup_choisi is not None
+
+    assert coup_choisi is not None
+    r, c = coup_choisi
+    assert board[r][c][0] != "ORANGE"
