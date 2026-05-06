@@ -26,7 +26,11 @@ def recevoir(client, taille_envoyé, taille_attendu):
         # lire la taille de la réponse du serveur en 4 oct
         response= client.recv(4)
         taille_response= struct.unpack("I", response)[0]
+<<<<<<< HEAD
      
+=======
+    
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
         data= client.recv(taille_response)
        
         response = json.loads(data.decode("utf-8"))
@@ -71,9 +75,14 @@ def envoyer_coup(client, move):
     client.send(header + message_json)
 
 
+<<<<<<< HEAD
 
 def find_tower_position(board, color_to_find, player_id):  
     #But : trouver la tour qu'on doit jouer dans le plateau à partir de la couleur imposée
+=======
+def find_tower_position(board, color_to_find, player_id):  
+    
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
     current_player = "dark" if player_id == 0 else "light"
     for r in range(8): 
         for c in range(8): 
@@ -88,10 +97,11 @@ def find_tower_position(board, color_to_find, player_id):
                         return r,c
                     elif title_color==color_to_find:
             
-                      return r, c # On a trouvé, On renvoie la position 
+                      return r, c 
                     
-    return None # Si on n'a rien trouvé (ne devrait pas arriver)
+    return None 
 
+<<<<<<< HEAD
 
 def get_legal_moves(state, color_to_play, player_id):   
     #trouver tous les coups légaux qu'on puisse faire 
@@ -100,6 +110,14 @@ def get_legal_moves(state, color_to_play, player_id):
     
     # joueur 0 monte (direction -1), joueur 1 descend (direction +1)
     direction = -1 if player_id == 0 else 1 
+=======
+def get_legal_moves(state, color_to_play, player_id):   
+    moves = [] 
+    
+    pos_r, pos_c = find_tower_position(state, color_to_play, player_id)
+    
+    direction = -1 if player_id == 0 else 1 #determine si on doit monter ou descendre dans le board en fonction du joueur qui joue
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
     
     # explore les 3 directions: gauche (-1), tout droit (0), droite (+1) 
     for dc in [-1, 0, 1]:
@@ -107,8 +125,12 @@ def get_legal_moves(state, color_to_play, player_id):
         
         # Tant qu'on est sur le plateau et que la case est vide
         while 0 <= r < 8 and 0 <= c < 8 and state[r][c][1] == None:
+<<<<<<< HEAD
             moves.append((r, c)) 
             
+=======
+            moves.append((r, c))
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
             
             r += direction
             c += dc
@@ -132,11 +154,19 @@ def check_win(player_id, board):
             
             return True
                   
+<<<<<<< HEAD
     return False 
 
 
 def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
     # simuler un move
+=======
+    return False
+
+#Simuler un move
+def simulation_move(minimax_board, player_id, color, r_arr, c_arr):   
+
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
     pos = find_tower_position(minimax_board, color, player_id)
     r_dep, c_dep = pos 
 
@@ -144,13 +174,20 @@ def simulation_move(minimax_board, player_id, color, r_arr, c_arr):
     piece = minimax_board[r_dep][c_dep][1]
     case_arrivee = minimax_board[r_arr][c_arr]
     
+<<<<<<< HEAD
+=======
+    #Simuler le déplacement 
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
     minimax_board[r_arr][c_arr] = (minimax_board[r_arr][c_arr][0], piece)
     minimax_board[r_dep][c_dep] = (minimax_board[r_dep][c_dep][0], None)
     return r_dep, c_dep, case_arrivee, piece
 
 
 def unmake_move(board, r_dep, c_dep, r_arr, c_arr, case_arrivee, piece_dep):
+<<<<<<< HEAD
     # annuler le coup
+=======
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
     board[r_dep][c_dep] = (board[r_dep][c_dep][0], piece_dep)
     board[r_arr][c_arr] = case_arrivee
 
@@ -250,7 +287,10 @@ def meilleur_coup(board, player_id, color):
     opps = 1 if player_id == 0 else 0 
 
     coups = get_legal_moves(board, color, player_id)
+<<<<<<< HEAD
     
+=======
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
     if not coups:
         return None
     
@@ -315,8 +355,13 @@ if __name__ == "__main__":
                     couleur_voulue = game_state["color"]
                     mon_id = game_state["current"]
     
+<<<<<<< HEAD
                     position_depart = find_tower_position(plateau, couleur_voulue, mon_id)   
                     r_dep, c_dep = position_depart     # On récupère les coordonnées de départ
+=======
+                    position_depart = find_tower_position(plateau, couleur_voulue, mon_id)
+                    r_dep, c_dep = position_depart     
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
                     print(position_depart)
         
                     # On génère les coups
@@ -326,7 +371,11 @@ if __name__ == "__main__":
                         reponse = {"response": "giveup"}
                         print("Aucun coup légal trouvé")
                     else:
+<<<<<<< HEAD
                         r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   
+=======
+                        r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)  
+>>>>>>> deff25e0a9f464e506c26cda771749ba3a659816
         
                         move = [
                             [r_dep, c_dep], 
