@@ -49,8 +49,7 @@ def recevoir(client, taille_envoyé, taille_attendu):
         with open("eval.json", "w") as f:
             json.dump(message_reçu_erreur, f, indent=4)
           
-              
-serverAddress= ("127.0.0.1", 3000)
+            
 
 
 def state(client):
@@ -303,61 +302,65 @@ def meilleur_coup(board, player_id, color):
 
 
     
+if __name__ == "__main__":
+    serverAddress= ("127.0.0.1", 3000)
 
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-    client.connect((serverAddress)) 
-
-    taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
-    recevoir(client, taille_envoyé, taille_attendu)
-
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
-    listener.bind(("0.0.0.0", 8888))
-    listener.listen()
-
-    print("listen on 8888")
-    while True:
-        client, addr= listener.accept()
-        print(f"accept connection from {addr}")
-       
-        with client : 
-            message = state(client)
-         
-            if message["request"]== "ping":
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
+        client.connect((serverAddress)) 
+    
+        taille_envoyé, taille_attendu = envoyé(client) #recupérer la taille du messages envoyé
+        recevoir(client, taille_envoyé, taille_attendu)
+    
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        listener.bind(("0.0.0.0", 8888))
+        listener.listen()
+    
+        print("listen on 8888")
+        while True:
+            client, addr= listener.accept()
+            print(f"accept connection from {addr}")
+           
+            with client : 
+                message = state(client)
+             
+                if message["request"]== "ping":
+            
+                    # Préparation et envoi du pong
+                    reponse = json.dumps({"response": "pong"}).encode("utf-8")
+                    taille_resp = struct.pack("I", len(reponse))
+                    client.sendall(taille_resp + reponse)
+                    print(f"Ping reçu de -> Pong envoyé !")
         
-                # Préparation et envoi du pong
-                reponse = json.dumps({"response": "pong"}).encode("utf-8")
-                taille_resp = struct.pack("I", len(reponse))
-                client.sendall(taille_resp + reponse)
-                print(f"Ping reçu de -> Pong envoyé !")
-    
-            elif message["request"] == "play":
-    
-                # On récupère les infos du message serveur
-                game_state = message["state"]
-                plateau = game_state["board"]
-                couleur_voulue = game_state["color"]
-                mon_id = game_state["current"]
-
-                position_depart = find_tower_position(plateau, couleur_voulue, mon_id)   # On trouve d'abord où est notre tour (le départ)
-                r_dep, c_dep = position_depart     # On récupère les coordonnées de départ
-                print(position_depart)
-    
-                # On génère les coups
-                coup = get_legal_moves(plateau, couleur_voulue, mon_id)
+                elif message["request"] == "play":
         
-                if not coup:
-                    reponse = {"response": "giveup"}
-                    print("Aucun coup légal trouvé")
-                else:
-                    r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
+                    # On récupère les infos du message serveur
+                    game_state = message["state"]
+                    plateau = game_state["board"]
+                    couleur_voulue = game_state["color"]
+                    mon_id = game_state["current"]
     
-                    move = [
-                        [r_dep, c_dep], 
-                        [r_arr, c_arr]
-                    ]  #notre move dans le bon format
-                    print(move)
-                    # reponse = {"response": "move", "move": move}
-                    #envoyer move au serveur
+                    position_depart = find_tower_position(plateau, couleur_voulue, mon_id)   # On trouve d'abord où est notre tour (le départ)
+                    r_dep, c_dep = position_depart     # On récupère les coordonnées de départ
+                    print(position_depart)
+        
+                    # On génère les coups
+                    coup = get_legal_moves(plateau, couleur_voulue, mon_id)
+            
+                    if not coup:
+                        reponse = {"response": "giveup"}
+                        print("Aucun coup légal trouvé")
+                    else:
+                        r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)   # Pour l'instant on choisit au hasard, plus tard ce sera le meilleur coup du Negamax
+        
+                        move = [
+                            [r_dep, c_dep], 
+                            [r_arr, c_arr]
+                        ]  #notre move dans le bon format
+                        print(move)
+                        # reponse = {"response": "move", "move": move}
+                        #envoyer move au serveur
+        
+                        envoyer_coup(client, move)
     
-                    envoyer_coup(client, move)
+    
