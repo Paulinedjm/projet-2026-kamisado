@@ -27,3 +27,9 @@ Cindy Njeumi Guetcho et Pauline de Jamblinne : 24343 - 24160
 - "struct" : nous permet d'encoder et décoder des messages par leurs tailles
 - "json" : nous permet de recevoir l'état de jeu et d'envoyer des messages au serveur
 - "math" : nous permet de normaliser le score dans def evaluate (math.tanh)
+
+## Codes
+
+Notre code principale se trouve dans EVALUATION.py. C'est dans se codes qu'on retrouve nos connexion au serveur, notre evaluate et notre negamax. 
+Dans test_EVALUATION.py, on a tout nos test qui couvre 80% du notre code (EVALUATION.py). 
+Le fichier request.py est un ancien code qu'on a utiliser pour tester notre ia et voir si elle gagne. 
