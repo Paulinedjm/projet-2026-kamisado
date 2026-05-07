@@ -183,7 +183,7 @@ def evaluate(minimax_board, player_id, color_to_play):
                 tower_color, tower_type = case[1][0], case[1][1]
                 
                 if tower_type == our_type:
-    ²                my_moves = get_legal_moves(minimax_board, tower_color, player_id)
+                    my_moves = get_legal_moves(minimax_board, tower_color, player_id)
                     my_mobility += len(my_moves)
                     # Menace directe de gagner
                     for coup_r, _ in my_moves:
@@ -273,7 +273,7 @@ def meilleur_coup(board, player_id, color):
 
     
 if __name__ == "__main__":
-    serverAddress= ("127.0.0.1", 3000)
+    serverAddress= ("127.17.10.58", 3000)
 
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
