@@ -30,6 +30,6 @@ Cindy Njeumi Guetcho et Pauline de Jamblinne : 24343 - 24160
 
 ## Codes
 
-Notre code principale se trouve dans EVALUATION.py. C'est dans se codes qu'on retrouve nos connexion au serveur, notre evaluate et notre negamax. 
+Notre code principale se trouve dans EVALUATION.py. C'est dans ce code qu'on retrouve nos connexion au serveur, notre evaluate et notre negamax. 
 Dans test_EVALUATION.py, on a tout nos test qui couvre 80% du notre code (EVALUATION.py). 
 Le fichier request.py est un ancien code qu'on a utiliser pour tester notre ia et voir si elle gagne. 
