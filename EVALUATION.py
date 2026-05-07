@@ -183,7 +183,7 @@ def evaluate(minimax_board, player_id, color_to_play):
                 tower_color, tower_type = case[1][0], case[1][1]
                 
                 if tower_type == our_type:
-                    my_moves = get_legal_moves(minimax_board, tower_color, player_id)
+    ²                my_moves = get_legal_moves(minimax_board, tower_color, player_id)
                     my_mobility += len(my_moves)
                     # Menace directe de gagner
                     for coup_r, _ in my_moves:
@@ -318,8 +318,12 @@ if __name__ == "__main__":
                     coup = get_legal_moves(plateau, couleur_voulue, mon_id)
             
                     if not coup:
-                        reponse = {"response": "giveup"}
                         print("Aucun coup légal trouvé")
+                        move = [
+                            [r_dep, c_dep], 
+                            [r_dep, c_dep]
+                        ]
+                        envoyer_coup(client, move)
                     else:
                         r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)  
         
