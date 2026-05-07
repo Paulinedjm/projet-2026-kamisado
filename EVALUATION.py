@@ -13,10 +13,7 @@ def envoyé(client):
     #preparation du message + taille
     message_json= json.dumps(envoi).encode("utf-8")
     taille= len(message_json)
-
-    #envoie (4 octect, taille, contenu du message)
     header=struct.pack( "I", taille)
-
     taille_totale=client.send(header+ message_json)
     
     return taille_totale, len(header)+len(message_json)
@@ -26,15 +23,14 @@ def recevoir(client, taille_envoyé, taille_attendu):
 
     if taille_envoyé== taille_attendu :
         
-        # lire la taille de la réponse 4 oct
+        # lire la taille de la réponse du serveur en 4 oct
         response= client.recv(4)
         taille_response= struct.unpack("I", response)[0]
     
         data= client.recv(taille_response)
-        #On décode et on transforme en dictionnaire
+       
         response = json.loads(data.decode("utf-8"))
         
-        # Écriture dans le fichier
         with open("eval.json", "w") as f:
             json.dump(response, f, indent=4)
    
@@ -50,17 +46,15 @@ def recevoir(client, taille_envoyé, taille_attendu):
 
 
 def state(client):
+    #recevoir l'état du jeu venant du serveur en créant une boucle pour recevoir être sûr de recevoir tout le message
     state_all= client.recv(4)
     taille_response= struct.unpack("I", state_all)[0]
-    #cree une boucle pour etre sur qu'on recoit tout le message 
     data = b""
     while len(data) < taille_response:
         morceau = client.recv(taille_response - len(data))
         data += morceau 
-    #On décode et on transforme en dictionnaire
     response = json.loads(data.decode("utf-8"))
 
-    #écrire dans le fichier json eval l'état de la board, le joueur qui doit jouer, et le pion à jouer
     with open("eval.json", "w") as f:
         json.dump(response, f, indent=4)
     
@@ -104,7 +98,7 @@ def get_legal_moves(state, color_to_play, player_id):
     
     direction = -1 if player_id == 0 else 1 #determine si on doit monter ou descendre dans le board en fonction du joueur qui joue
     
-    # Les 3 colonnes à tester : gauche (-1), tout droit (0), droite (+1), explore les 3 directions 
+    # explore les 3 directions: gauche (-1), tout droit (0), droite (+1) 
     for dc in [-1, 0, 1]:
         r, c = pos_r + direction, pos_c + dc
         
@@ -117,18 +111,20 @@ def get_legal_moves(state, color_to_play, player_id):
             
     return moves
 
-#Determination victoire 
+
 def check_win(player_id, board):
+    # determine si un joueur a atteint la ligne adverse
     if player_id==0 :
-        line=0 #joueur 1 va à 0
+        line=0 
         kind= "dark"
     else : 
-        line=7 #joueur 2 va à 7
+        line=7 
         kind= "light"
-    
+    # determination victoire 
     for col in range(8):
         case= board[line][col]
-        if case[1] is not None and case[1][1]== kind:  #si à la ligne 0 ou 7 pour chaque colone, on a un pion qui a notre kind alors on a gagné 
+        if case[1] is not None and case[1][1]== kind:  
+            
             
             return True
                   
@@ -138,11 +134,10 @@ def check_win(player_id, board):
 def simulation_move(minimax_board, player_id, color, r_arr, c_arr):   
 
     pos = find_tower_position(minimax_board, color, player_id)
-    r_dep, c_dep = pos #pos de départ
+    r_dep, c_dep = pos 
 
-    #sauvegarde la pièce (case=(couleur_case, piece) )
+    # sauvegarde la pièce et la case d'arrivée 
     piece = minimax_board[r_dep][c_dep][1]
-    #sauvegarder la case d'arrivé (car on va la modifier donc on doit pouvoir la restaurer après)
     case_arrivee = minimax_board[r_arr][c_arr]
     
     #Simuler le déplacement 
@@ -155,15 +150,16 @@ def unmake_move(board, r_dep, c_dep, r_arr, c_arr, case_arrivee, piece_dep):
     board[r_dep][c_dep] = (board[r_dep][c_dep][0], piece_dep)
     board[r_arr][c_arr] = case_arrivee
 
-#fonction qui évalue les scores pour choisir le meilleur coup
+
 def evaluate(minimax_board, player_id, color_to_play):
+    # fonction qui évalue les scores pour choisir le meilleur coup
     opponent = 1 if player_id == 0 else 0
     score = 0
 
     if check_win(player_id, minimax_board): 
-        return 1.0  # Victoire immédiate
+        return 1.0 
     if check_win(opponent, minimax_board): 
-        return -1.0 # Défaite immédiate
+        return -1.0 
 
     my_goal = 0 if player_id == 0 else 7
     opponent_goal = 7 if player_id == 0 else 0
@@ -174,12 +170,11 @@ def evaluate(minimax_board, player_id, color_to_play):
         if len(direct_moves) == 0:        
                 score -= 4.0  
 
-    # Mobilité et Menaces
+
     my_mobility = 0
     opps_mobility = 0
     our_type = "dark" if player_id == 0 else "light"
     opponent_type = "light" if player_id == 0 else "dark"
-    
 
     for r in range(8):
         for c in range(8):
@@ -216,20 +211,17 @@ def negamax(minimax_board, depth, player_id, color, alpha, beta):
     if check_win(player_id, minimax_board) or check_win(opps, minimax_board) or depth == 0:
         return evaluate(minimax_board, player_id, color)
 
-    #Recuperation des coups possibles sinon on évalue la pos directement  
     coups = get_legal_moves(minimax_board, color, player_id)
     if not coups:
         return evaluate(minimax_board, player_id, color)
     
-    #initialise le score maximum
     scoreMax = float('-inf')
     
     #on teste chaque coup possible
     for r, c in coups:
-        #recuperation de la couleur de notre case d'arrivé 
         couleur_suivante = minimax_board[r][c][0]
 
-        #Position de départ de la pièce qu'on va bouger 
+        
         pos = find_tower_position(minimax_board, color, player_id)
         piece = minimax_board[pos[0]][pos[1]][1]
 
@@ -246,7 +238,7 @@ def negamax(minimax_board, depth, player_id, color, alpha, beta):
         if scoreMax > alpha:
                 alpha = scoreMax
         if alpha >= beta:
-            break #il n'a pas besoin d'explorer cette branche 
+            break 
         
     return scoreMax
 
@@ -257,7 +249,7 @@ def meilleur_coup(board, player_id, color):
     if not coups:
         return None
     
-    # Initialiser avec le premier coup de la liste 
+    
     best_score = float('-inf')
     best_move = coups[0]
 
@@ -269,14 +261,13 @@ def meilleur_coup(board, player_id, color):
         piece = board[pos[0]][pos[1]][1]
         r_dep, c_dep, ancienne_arrivee, piece = simulation_move(board, player_id, color, r, c)
         
-        score = -negamax(board,3, opps, couleur_suivante, float("-inf"), float("inf"))
+        score = -negamax(board,4, opps, couleur_suivante, float("-inf"), float("inf"))
         unmake_move(board, r_dep, c_dep, r, c, ancienne_arrivee, piece)
         
 
         if score > best_score:
             best_score = score
             best_move = (r, c)
-    print("best move")
     return best_move
 
 
@@ -327,12 +318,8 @@ if __name__ == "__main__":
                     coup = get_legal_moves(plateau, couleur_voulue, mon_id)
             
                     if not coup:
+                        reponse = {"response": "giveup"}
                         print("Aucun coup légal trouvé")
-                        move = [
-                            [r_dep, c_dep], 
-                            [r_dep, c_dep]
-                        ]
-                        envoyer_coup(client, move)
                     else:
                         r_arr, c_arr = meilleur_coup(plateau, mon_id, couleur_voulue)  
         
@@ -341,8 +328,7 @@ if __name__ == "__main__":
                             [r_arr, c_arr]
                         ]  
                         print(move)
-                        # reponse = {"response": "move", "move": move}
-                        #envoyer move au serveur
+                       
         
                         envoyer_coup(client, move)
     
