@@ -179,9 +179,6 @@ def evaluate(minimax_board, player_id, color_to_play):
     opps_mobility = 0
     our_type = "dark" if player_id == 0 else "light"
     opponent_type = "light" if player_id == 0 else "dark"
-
-    #chercher la pos de la pièce que je dois jouer donc pas de boucle !!!
-    pos = find_tower_position(minimax_board, color_to_play, player_id)
     
 
     for r in range(8):
