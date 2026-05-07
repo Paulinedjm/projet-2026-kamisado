@@ -261,7 +261,7 @@ def meilleur_coup(board, player_id, color):
         piece = board[pos[0]][pos[1]][1]
         r_dep, c_dep, ancienne_arrivee, piece = simulation_move(board, player_id, color, r, c)
         
-        score = -negamax(board,4, opps, couleur_suivante, float("-inf"), float("inf"))
+        score = -negamax(board,3, opps, couleur_suivante, float("-inf"), float("inf"))
         unmake_move(board, r_dep, c_dep, r, c, ancienne_arrivee, piece)
         
 
